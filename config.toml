@@ -11,3 +11,8 @@ front_handler = "multiple_choice/default"
 prompt = "informatics/database_true_false"
 n_problems = 4
 front_handler = "true_false/default"
+
+[[batch]]
+prompt = "mathematics/probability_short_answer"
+n_problems = 6
+front_handler = "short_answer/default"

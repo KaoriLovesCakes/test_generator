@@ -69,7 +69,7 @@ def handler(prompt_content: str, n_problems: int):
 
     response = json.loads(response_raw)
     for key in response.keys():
-        response[key]["is_true"] = np.random.randint(2, size=4).tolist()
+        response[key]["answer"] = "".join(np.random.choice(["D", "S"], size=4))
         response[key]["ptype"] = "true_false"
 
     return response

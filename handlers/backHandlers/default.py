@@ -23,7 +23,7 @@ def handler(content_dict: dict, path: str) -> str:
     content = ""
 
     for i, (key, problem) in enumerate(content_dict.items()):
-        question = f"{problem['question']}\n\n"
+        question = f"{problem['question']}"
         for j, image in enumerate(get_images(problem)):
             image_dir_relative = os.path.join(
                 "assets",
@@ -31,30 +31,29 @@ def handler(content_dict: dict, path: str) -> str:
             )
             image_dir = os.path.join(path, image_dir_relative)
             image.save(image_dir)
-            question += f"![{key}_{j}]({image_dir_relative})\n\n"
-        content += f"{i + 1}. {_get_indented_multiline_str(question)}\n"
+            question += f"\n\n![{key}_{j}]({image_dir_relative})"
 
         ptype = problem["ptype"]
 
         if ptype == "multiple_choice":
-            is_true = problem["is_true"]
+            answer = problem["answer"]
+            content += f"{i + 1}. {_get_indented_multiline_str(question)}\n\n"
             for j, choice in enumerate(problem["choices"]):
-                choice_prefix = f"{'*' if j == is_true else ''}{'abcd'[j]})"
+                choice_prefix = f"{'*' if j == answer else ''}{chr(ord('a') + j)})"
                 content += f"{choice_prefix} {_get_indented_multiline_str(choice)}\n\n"
 
         if ptype == "true_false":
-            is_true = problem["is_true"]
+            answer = problem["answer"]
             for j, statement_pair in enumerate(problem["statements"]):
-                statement = (
-                    statement_pair["true"] if is_true[j] else statement_pair["false"]
-                )
-                statement_prefix = f"[{'*' if is_true[j] else ' '}]"
-                content += (
-                    f"{statement_prefix} {_get_indented_multiline_str(statement)}\n\n"
-                )
+                statement = statement_pair["true" if answer[j] == "D" else "false"]
+                statement_prefix = f"{chr(ord('a') + j)})"
+                question += f"\n\n{statement_prefix} {statement}"
+            content += f"{i + 1}. {_get_indented_multiline_str(question)}\n\n"
+            content += f"* {answer}\n\n"
 
         if ptype == "short_answer":
             answer = problem["answer"]
+            content += f"{i + 1}. {_get_indented_multiline_str(question)}\n\n"
             content += f"* {answer}\n\n"
 
     return content

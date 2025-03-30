@@ -15,15 +15,13 @@ MODEL = os.environ.get("MODEL") or "gemini-2.0-pro-exp-02-05"
 
 client = genai.Client(api_key=API_KEY)
 
+N_CHOICES = 4
+
 
 class QuestionBlock(BaseModel):
-    context: str = Field(
-        ...,
-        description="The question context.",
-    )
     question: str = Field(
         ...,
-        description="The question itself, providing context, numbers, events, etc. MUST INCLUDE THE CONTEXT ABOVE. Be VERY DETAILED!",
+        description="The question itself, providing context, numbers, events, etc.",
     )
     solution: str = Field(
         ...,
@@ -66,11 +64,11 @@ def handler(prompt_content: str, n_problems: int):
         response_curr = response[key]
         ptype = "multiple_choice"
         choices = deepcopy(response_curr["choices_false"])
-        is_true = np.random.randint(4)
-        choices.insert(is_true, response_curr["choice_true"])
+        answer = np.random.randint(N_CHOICES)
+        choices.insert(answer, response_curr["choice_true"])
         loc = locals()
         response_curr.update(
-            {_key: loc[_key] for _key in ["choices", "is_true", "ptype"]}
+            {_key: loc[_key] for _key in ["choices", "answer", "ptype"]}
         )
 
     return response
