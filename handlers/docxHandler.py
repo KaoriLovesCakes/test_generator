@@ -272,10 +272,10 @@ def docx_handler(path: str):
     footer.add_run("- Thí sinh không được sử dụng tài liệu;\n").italic = True
     footer.add_run("- Cán bộ coi thi không giải thích gì thêm.").italic = True
 
-    doc.save(os.path.join(path, DOCX_FILE))
+    doc.save(os.path.join(path, "de_thi.docx"))
 
     print(
         "[blue]    └── [/blue]"
         "[green]Đã tạo file docx thành công: [/green]"
-        f"[white]{os.path.join(path, DOCX_FILE)}[/white]"
+        f"[white]{os.path.join(path, 'de_thi.docx')}[/white]"
     )

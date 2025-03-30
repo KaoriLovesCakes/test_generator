@@ -23,7 +23,7 @@ d) Khi nước sôi, bạn học sinh lấy ra 3 kg nước từ ấm. Bạn qu�
 
 ```json
 "q0": {
-  "question_context": "Bạn học sinh dùng ấm để đun nước. Sau một thời gian, bạn học sinh bắt đầu thêm nước ở nhiệt độ nào đó vào ấm. Sau một thời gian nữa thì nước đạt 60 độ C. Sau một thời gian nữa thì nước sôi.",
+  "context": "Bạn học sinh dùng ấm để đun nước. Sau một thời gian, bạn học sinh bắt đầu thêm nước ở nhiệt độ nào đó vào ấm. Sau một thời gian nữa thì nước đạt 60 độ C. Sau một thời gian nữa thì nước sôi.",
   "variables": {
       "event": [
           "",

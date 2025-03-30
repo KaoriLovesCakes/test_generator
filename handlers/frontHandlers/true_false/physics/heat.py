@@ -48,7 +48,7 @@ class StatementsPair(BaseModel):
 
 
 class QuestionBlock(BaseModel):
-    question_context: str = Field(
+    context: str = Field(
         ...,
         description="The question's context.",
     )
@@ -84,7 +84,7 @@ def handler(prompt_content: str, n_problems: int):
         config={
             "response_mime_type": "application/json",
             "response_schema": create_model(
-                "TrueFalseQuestions",
+                "MyQuestions",
                 **{f"q{i}": (QuestionBlock, ...) for i in range(n_problems)},
             ),
             "temperature": 1.5,

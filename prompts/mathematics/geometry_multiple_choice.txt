@@ -1,0 +1,26 @@
+Giúp mình tạo một đề thi về hình học không gian cho học sinh Trung học Phổ thông.
+
+Nội dung kiến thức các bạn học sinh đã học như sau.
+
+```
+- Phương trình đường thẳng, đường tròn, mặt cầu
+- Khoảng cách từ một điểm đến một mặt phẳng
+- Vector, tích vô hướng, tích có hướng
+- Hình hộp, hình lăng trụ, hình chóp, hình nón
+```
+
+Dưới đây là một câu hỏi mẫu (ĐỪNG SINH LẠI CÂU HỎI NÀY). Hãy sáng tạo và đừng tạo các câu hỏi giống nhau!
+
+```json
+{
+  "context": "Cho hình chóp S.ABCD có đáy ABCD là hình chữ nhật và SA vuông góc với (ABCD).",
+  "question": "Cho hình chóp S.ABCD có đáy ABCD là hình chữ nhật và SA vuông góc với (ABCD). Mặt phẳng nào sau đây vuông góc với mặt phẳng (ABCD)?",
+  "solution": "Vì SA vuông góc (ABCD) nên (SAB), (SAD) vuông góc (ABCD). Kiểm tra các đáp án, ta thấy chỉ có (SAB) thỏa mãn.",
+  "choice_true": "(SAB)",
+  "choices_false": [
+      "(SBC)",
+      "(SCD)",
+      "(SAC)"
+  ]
+}
+```

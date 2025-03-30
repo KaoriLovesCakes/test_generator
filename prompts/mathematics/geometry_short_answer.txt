@@ -1,0 +1,27 @@
+Giúp mình tạo một đề thi về hình học không gian cho học sinh Trung học Phổ thông, dạng bài trả lời ngắn.
+
+Nội dung kiến thức các bạn học sinh đã học như sau.
+
+```
+- Phương trình đường thẳng, đường tròn, mặt cầu
+- Khoảng cách từ một điểm đến một mặt phẳng
+- Vector, tích vô hướng, tích có hướng
+- Hình hộp, hình lăng trụ, hình chóp, hình nón
+```
+
+Dưới đây là một câu hỏi mẫu (ĐỪNG SINH LẠI CÂU HỎI NÀY). Hãy sáng tạo và đừng tạo các câu hỏi giống nhau!
+
+```json
+{
+  "context": "Cho hình lăng trụ đứng.",
+  "question": "Cho hình lăng trụ đứng ABC.A'B'C' có AB = 5, BC = 6, CA = 7. Khoảng cách giữa hai đường thẳng AA' và BC bằng bao nhiêu?",
+  "solution": "
+    Tính diện tích tam giác ABC:
+      Nửa chu vi: p = (5 + 6 + 7) / 2 = 9.
+      Diện tích: S = √(9 * 4 * 3 * 2) = 6√6.
+    Tính khoảng cách từ A đến BC:
+      h = (2 * S) / BC = (2 * 6√6) / 6 = 2√6 xấp xỉ 4.9.
+    Kết luận: Khoảng cách giữa AA' và BC là 4.9.",
+  "choice_true": 4.9,
+}
+```

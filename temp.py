@@ -5,25 +5,20 @@ from typing import List
 
 import dotenv
 import numpy as np
-from google import genai
+import requests
 from pydantic import BaseModel, Field, create_model
 
 dotenv.load_dotenv()
 
 API_KEY = os.environ.get("API_KEY")
-MODEL = os.environ.get("MODEL") or "google/gemini-2.0-pro-exp-02-05:free"
-
-client = genai.Client(api_key=API_KEY)
+BASE_URL = os.environ.get("BASE_URL") or "https://openrouter.ai/api/v1/chat/completions"
+MODEL = os.environ.get("MODEL") or "google/gemini-2.5-pro-exp-03-25:free"
 
 
 class QuestionBlock(BaseModel):
-    context: str = Field(
-        ...,
-        description="The question context.",
-    )
     question: str = Field(
         ...,
-        description="The question itself, providing context, numbers, events, etc. MUST INCLUDE THE CONTEXT ABOVE. Be VERY DETAILED!",
+        description="The question itself, providing context, numbers, events, etc.",
     )
     solution: str = Field(
         ...,
@@ -41,25 +36,51 @@ class QuestionBlock(BaseModel):
     )
 
 
-def handler(prompt_content: str, n_problems: int):
+def handler():
     """
     Takes in content of a prompt and the number of problems to be generated.
     Return LLM's response.
     """
 
-    response_raw = client.models.generate_content(
-        model=MODEL,
-        contents=prompt_content,
-        config={
-            "response_mime_type": "application/json",
-            "response_schema": create_model(
-                "MyQuestions",
-                **{f"q{i}": (QuestionBlock, ...) for i in range(n_problems)},
-            ),
-            "temperature": 1.5,
+    prompt_content = """Help me generate a multiple choice contest about SQL and database.
+    """
+    n_problems = 5
+
+    schema = create_model(
+        "TrueFalseQuestions",
+        **{f"q{i}": (QuestionBlock, ...) for i in range(n_problems)},
+    ).model_json_schema()
+
+    print(json.dumps(schema, indent=4))
+
+    response_raw = requests.post(
+        url=BASE_URL,
+        headers={
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json",
         },
-    ).text
+        json={
+            "model": MODEL,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt_content,
+                }
+            ],
+            "require_parameters": True,
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "multiple_choice",
+                    "strict": True,
+                    "schema": schema,
+                },
+            },
+        },
+    ).json()
     assert response_raw is not None
+
+    return json.dumps(response_raw, indent=4)
 
     response = json.loads(response_raw)
     for key in response.keys():
@@ -74,3 +95,7 @@ def handler(prompt_content: str, n_problems: int):
         )
 
     return response
+
+
+if __name__ == "__main__":
+    print(handler())

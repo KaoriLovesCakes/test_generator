@@ -53,4 +53,8 @@ def handler(content_dict: dict, path: str) -> str:
                     f"{statement_prefix} {_get_indented_multiline_str(statement)}\n\n"
                 )
 
+        if ptype == "short_answer":
+            answer = problem["answer"]
+            content += f"* {answer}\n\n"
+
     return content

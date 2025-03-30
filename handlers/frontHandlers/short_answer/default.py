@@ -1,9 +1,8 @@
 import json
 import os
-from typing import List
+from typing import Union
 
 import dotenv
-import numpy as np
 from google import genai
 from pydantic import BaseModel, Field, create_model
 
@@ -15,17 +14,6 @@ MODEL = os.environ.get("MODEL") or "gemini-2.0-pro-exp-02-05"
 client = genai.Client(api_key=API_KEY)
 
 
-class StatementsPair(BaseModel):
-    true: str = Field(
-        ...,
-        description="Think about the above carefully. Make sure that this statement MUST BE TRUE.",
-    )
-    false: str = Field(
-        ...,
-        description="This statement appears SIMILAR to the true one but MUST BE FALSE.",
-    )
-
-
 class QuestionBlock(BaseModel):
     context: str = Field(
         ...,
@@ -33,17 +21,15 @@ class QuestionBlock(BaseModel):
     )
     question: str = Field(
         ...,
-        description="The question itself, providing context, numbers, events, etc. MUST INCLUDE THE CONTEXT ABOVE. Be LONG and VERY DETAILED!",
+        description="The question itself to be read by the student. MUST INCLUDE THE CONTEXT ABOVE. Must ask something that CAN BE ANSWERED with A SINGLE NUMBER (int or float). Be LONG and VERY DETAILED!",
     )
     solution: str = Field(
         ...,
-        description="Generate 4 possible subtasks about the question, then propose the solution (with reasoning and calculation). Be detailed: What are the given info, what the step by step solution for each subtask is.",
+        description="Solution to the problem (with reasoning and calculation). Be detailed: What are the given info, what the step by step reasonings.",
     )
-    statements: List[StatementsPair] = Field(
+    answer: Union[int, float] = Field(
         ...,
-        min_length=4,
-        max_length=4,
-        description="List of pairs of statements related to the problem. DO NOT GENERATE STATEMENTS NOT VERIFIED BY THE SOLUTION ABOVE.",
+        description="The single answer. MUST BE CONSISTENT THE SOLUTION ABOVE.",
     )
 
 
@@ -69,7 +55,6 @@ def handler(prompt_content: str, n_problems: int):
 
     response = json.loads(response_raw)
     for key in response.keys():
-        response[key]["is_true"] = np.random.randint(2, size=4).tolist()
-        response[key]["ptype"] = "true_false"
+        response[key]["ptype"] = "short_answer"
 
     return response

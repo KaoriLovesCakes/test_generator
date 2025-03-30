@@ -1,0 +1,40 @@
+Giúp mình tạo một đề thi về xác suất cho học sinh Trung học Phổ thông, dạng bài trả lời ngắn.
+
+Nội dung kiến thức các bạn học sinh đã học như sau.
+
+```
+- Công thức Bayes.
+```
+
+Dưới đây là một câu hỏi mẫu (ĐỪNG SINH LẠI CÂU HỎI NÀY). Hãy sáng tạo và đừng tạo các câu hỏi giống nhau!
+
+```json
+{
+  "context": "Có hai chiếc hộp, mỗi hộp đựng bóng đỏ và vàng. Lấy ngẫu nhiên 1 quả bóng bỏ từ hộp I và hộp II, sau đó lấy ngẫu nhiên 1 quả bóng từ hộp II.",
+  "question": "Có hai chiếc hộp, hộp I có 6 bóng đỏ và 4 bóng vàng, hộp II có 7 bóng đỏ và 3 bóng vàng. Lấy ngẫu nhiên 1 quả bóng bỏ từ hộp I và hộp II, sau đó lấy ngẫu nhiên 1 quả bóng từ hộp II. Tính xác suất quả bóng lấy từ hộp II là quả bóng chuyển từ hộp I sang, biết quả bóng đó có màu đỏ. Làm tròn đến 1 chữ số có nghĩa",
+  "solution": "Để giải bài toán này, ta sẽ sử dụng công thức Bayes.
+1. Xác suất lấy được bóng đỏ từ hộp I:
+    Hộp I có 6 bóng đỏ và 4 bóng vàng, tổng cộng 10 bóng.
+    Xác suất lấy được bóng đỏ từ hộp I: P(Đỏ I) = 6/10 = 3/5.
+2. Xác suất lấy được bóng vàng từ hộp I:
+    Xác suất lấy được bóng vàng từ hộp I: P(Vàng I) = 4/10 = 2/5.
+3. Xác suất lấy được bóng đỏ từ hộp II sau khi chuyển bóng từ hộp I:
+    Nếu chuyển bóng đỏ từ hộp I sang hộp II:
+        Hộp II có 8 bóng đỏ và 3 bóng vàng, tổng cộng 11 bóng.
+        Xác suất lấy được bóng đỏ từ hộp II: P(Đỏ II | Đỏ I) = 8/11.
+    Nếu chuyển bóng vàng từ hộp I sang hộp II:
+        Hộp II có 7 bóng đỏ và 4 bóng vàng, tổng cộng 11 bóng.
+        Xác suất lấy được bóng đỏ từ hộp II: P(Đỏ II | Vàng I) = 7/11.
+4. Xác suất lấy được bóng đỏ từ hộp II:
+    Sử dụng công thức xác suất toàn phần:
+        P(Đỏ II) = P(Đỏ I) * P(Đỏ II | Đỏ I) + P(Vàng I) * P(Đỏ II | Vàng I)
+        P(Đỏ II) = (3/5) * (8/11) + (2/5) * (7/11) = 24/55 + 14/55 = 38/55.
+5. Xác suất bóng đỏ lấy từ hộp II là bóng chuyển từ hộp I:
+    Sử dụng công thức Bayes:
+        P(Đỏ I | Đỏ II) = [P(Đỏ I) * P(Đỏ II | Đỏ I)] / P(Đỏ II)
+        P(Đỏ I | Đỏ II) = [(3/5) * (8/11)] / (38/55) = (24/55) / (38/55) = 24/38 = 12/19.
+Kết luận:
+    Xác suất quả bóng lấy từ hộp II là quả bóng chuyển từ hộp I sang, biết quả bóng đó có màu đỏ là 12/19 ~ 0.08.",
+  "choice_true": 0.08,
+}
+```

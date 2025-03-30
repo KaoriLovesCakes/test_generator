@@ -2,12 +2,22 @@
 shuffle = false
 back_handler = "default"
 
-[[batch]]
-prompt = "informatics/database"
-n_problems = 24
-front_handler = "multiple_choice/default"
+# [[batch]]
+# prompt = "mathematics/geometry"
+# n_problems = 12
+# front_handler = "multiple_choice/default"
+#
+# [[batch]]
+# prompt = "mathematics/true_false"
+# n_problems = 4
+# front_handler = "true_false/default"
 
 [[batch]]
-prompt = "informatics/database_true_false"
-n_problems = 4
-front_handler = "true_false/default"
+prompt = "mathematics/geometry_short_answer"
+n_problems = 3
+front_handler = "short_answer/default"
+
+[[batch]]
+prompt = "mathematics/probability_short_answer"
+n_problems = 3
+front_handler = "short_answer/default"
