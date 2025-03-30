@@ -86,7 +86,7 @@ def line_detect(line: str):
 
 
 def docx_handler(path: str):
-    with open(os.path.join(path, "content.txt")) as log:
+    with open(os.path.join(path, "content.txt"), "r", encoding="utf-8") as log:
         exam_content = log.read()
 
     if len(exam_content) == 0:
