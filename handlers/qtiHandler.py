@@ -7,7 +7,7 @@ from rich import print
 
 
 def qti_handler(path: str):
-    with open(os.path.join(path, "content.txt")) as log:
+    with open(os.path.join(path, "content.txt"), "r", encoding="utf-8") as log:
         content = log.read()
 
     text2qti_config = text2qti.config.Config()
