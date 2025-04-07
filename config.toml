@@ -1,18 +1,12 @@
 [global]
 shuffle = false
-back_handler = "default"
 
 [[batch]]
-prompt = "informatics/database"
+prompt = "informatics/database.txt"
 n_problems = 24
-front_handler = "multiple_choice/default"
+handler = "multiple_choice/default"
 
 [[batch]]
-prompt = "informatics/database_true_false"
+prompt = "informatics/database_true_false.txt"
 n_problems = 4
-front_handler = "true_false/default"
-
-[[batch]]
-prompt = "mathematics/probability_short_answer"
-n_problems = 6
-front_handler = "short_answer/default"
+handler = "true_false/default"
