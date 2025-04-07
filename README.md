@@ -122,9 +122,9 @@ Explanation:
 
     - Sometimes the expected output length may exceed the LLM's limit. In this
       case, you can specify multiple batches while using the same `prompt` and
-      `front_handler`.
+      `handler`.
 
-- `front_handler = "multiple_choice/default"`:
+- `handler = "multiple_choice/default"`:
 
     - [`handlers/custom/multiple_choice/default.py`](handlers/frontHandlers/multiple_choice/default.py)
       must contain the function `handler(prompt_content, n_problems)`.
