@@ -30,7 +30,7 @@ def qti_handler(dir_input: str, dir_output: str):
         for root, _, files in os.walk(tmpdir):
             for file in files:
                 if os.path.basename(file).startswith("text2qti_assessment_"):
-                    with open(os.path.join(root, file), "r") as f:
+                    with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                         soup = BeautifulSoup(f.read(), features="xml")
 
                     for mattext_tag in soup.find_all("mattext"):
@@ -56,7 +56,7 @@ def qti_handler(dir_input: str, dir_output: str):
                                 false_img.replaceWith(audio_tag)
                         mattext_tag.string = html.escape(str(mattext_soup))
 
-                    with open(os.path.join(root, file), "w") as f:
+                    with open(os.path.join(root, file), "w", encoding="utf-8") as f:
                         f.write(soup.prettify(formatter=HTMLFormatter(indent=2)))
 
         with ZipFile(qti_dir, "w") as zf:
