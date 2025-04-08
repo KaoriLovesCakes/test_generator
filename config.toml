@@ -7,6 +7,6 @@ n_problems = 24
 handler = "multiple_choice/default"
 
 [[batch]]
-prompt = "informatics/database_true_false.txt"
+prompt = "informatics/database.txt"
 n_problems = 4
 handler = "true_false/default"
