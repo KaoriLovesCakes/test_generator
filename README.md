@@ -52,10 +52,10 @@ API_KEY=<YOUR_API_KEY>
 MODEL=<MODEL>
 ```
 
-> [!NOTE]
-> Google AI Studio API key is preferred and officialy supported. Front handler
-> `legacy` use OpenRouter API key. To use another API key, you can write a
-> custom front handler.
+If you are using the officially supported handlers, please use your Google AI
+Studio API. The following models have been tested:
+
+- `gemini-2.0-flash` (default)
 
 ## Usage
 
