@@ -1,6 +1,5 @@
 import os
 from datetime import datetime
-from pathlib import Path
 
 import tomli
 from clize import ArgumentError, run
@@ -12,27 +11,91 @@ CONFIG_FILE = "config.toml"
 PROMPTS_DIR = "prompts"
 
 
-def generate(
+def txt_to_docx(*, input: "i", output: "o" = None):
+    """
+    Generate exam content in docx format from QTI-compatible text format.
+
+    :param input: Path to input file in QTI-compatible text format.
+    :param output: Path to output. Will be created if not exists. (default: dist/{datetime})
+    """
+
+    if output is None:
+        output = os.path.join("dist", datetime.now().strftime("%Y%m%d_%H%M%S"))
+        os.makedirs(output)
+    elif not os.path.isdir(output):
+        raise ArgumentError(f"Not a directory: {output}")
+
+    print("[yellow]Đang tạo file docx...[/yellow]")
+
+    docx_handler(input, output)
+
+    print(
+        "[blue]└── [/blue]"
+        "[green]Đã tạo file docx thành công: [/green]"
+        f"[white]{os.path.join(output, 'exam.docx')}[/white]"
+    )
+
+
+def txt_to_qti(*, input: "i", output: "o" = None):
+    """
+    Generate exam in QTI format from QTI-compatible text format.
+
+    :param input: Path to input file in QTI-compatible text format.
+    :param output: Path to output. Will be created if not exists. (default: dist/{datetime})
+    """
+
+    if output is None:
+        output = os.path.join("dist", datetime.now().strftime("%Y%m%d_%H%M%S"))
+        os.makedirs(output)
+    elif not os.path.isdir(output):
+        raise ArgumentError(f"Not a directory: {output}")
+
+    print("[yellow]Đang tạo file zip QTI...[/yellow]")
+
+    qti_handler(input, output)
+
+    print(
+        "[blue]└── [/blue]"
+        "[green]Đã tạo file zip QTI thành công: [/green]"
+        f"[white]{os.path.join(output, 'qti.zip')}[/white]"
+    )
+
+
+def txt_to_docx_qti(*, input: "i", output: "o" = None):
+    """
+    Generate exam content in docx format, along with exam in QTI format, from QTI-compatible text format.
+
+    :param input: Path to input file in QTI-compatible text format.
+    :param output: Path to output. Will be created if not exists. (default: dist/{datetime})
+    """
+
+    if output is None:
+        output = os.path.join("dist", datetime.now().strftime("%Y%m%d_%H%M%S"))
+        os.makedirs(output)
+    elif not os.path.isdir(output):
+        raise ArgumentError(f"Not a directory: {output}")
+
+    txt_to_docx(input=input, output=output)
+    txt_to_qti(input=input, output=output)
+
+
+def main(
     *,
     config: "c" = "config.toml",
     output: "o" = None,
     raw_content_only: "r" = False,
-    always_use_llm: "a" = False,
 ):
     """
-    Generate a contest from prompts.
+    Generate a exam from LLM prompts.
 
     :param config: Path to config file.
     :param output: Path to output. Will be created if not exists. (default: dist/{datetime})
     :param raw_content_only: docx and QTI zip files will not be generated.
-    :param always_use_llm: Always use LLM to generate content instead of asking each time.
     """
-
-    if not os.path.isfile(config):
-        os.makedirs(config, exist_ok=True)
 
     if output is None:
         output = os.path.join("dist", datetime.now().strftime("%Y%m%d_%H%M%S"))
+        os.makedirs(output)
     elif not os.path.isdir(output):
         raise ArgumentError(f"Not a directory: {output}")
 
@@ -41,8 +104,17 @@ def generate(
 
     print(f"[green]Đã đọc config file tại [white]{config}[/white] thành công.[/green]")
 
-    keys_global = ["shuffle", "back_handler"]
-    keys_per_prompt = ["prompt", "n_problems", "front_handler"]
+    path = output
+    if path == "":
+        path = f"./dist/{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    print(f"[green]Sẽ tạo đề thi tại [white]{path}[/white].[/green]")
+
+    keys_global = ["shuffle"]
+    keys_per_prompt_generated = ["prompt", "n_problems", "handler"]
+    keys_per_prompt_manual = ["source"]
 
     config_global = config_all.get("global", {})
 
@@ -51,68 +123,30 @@ def generate(
             raise KeyError(f"{key} is not specified.")
 
     config_per_prompt = {}
-    if "batch" not in config_all:
-        print(
-            "[green]Không tìm thấy \[\[batch]] trong config file. Sẽ xử lí lần lượt tất cả prompts được tìm thấy.[/green]"
-        )
+    for i, config_per_prompt_curr in enumerate(config_all["batch"]):
+        mode = ""
+        if all((key in config_per_prompt_curr) for key in keys_per_prompt_generated):
+            mode = "generated"
+        if all((key in config_per_prompt_curr) for key in keys_per_prompt_manual):
+            mode = "manual"
 
-        for key in keys_per_prompt:
-            if key not in config_global:
-                raise KeyError(f"{key} is not specified.")
+        if not mode:
+            raise KeyError(f"Batch {i}: Insufficient keys.")
 
-        prompt_dirs = sorted(Path("prompts").iterdir())
-        for prompt_dir in prompt_dirs:
-            config_per_prompt_curr = {
-                key: value
-                for key, value in config_global.items()
-                if key in keys_per_prompt
-            }
-            prompt_name = prompt_dir.stem
-            config_per_prompt_curr.update({"prompt": prompt_name})
-            config_per_prompt[f"batch_{prompt_name}"] = config_per_prompt_curr
-    else:
-        for i, config_per_prompt_curr_from_file in enumerate(config_all["batch"]):
-            config_per_prompt_curr = {
-                key: value
-                for key, value in config_global.items()
-                if key in keys_per_prompt
-            }
-            config_per_prompt_curr.update(config_per_prompt_curr_from_file)
-            config_per_prompt[f"batch_{i}"] = config_per_prompt_curr
+        config_per_prompt_curr["mode"] = mode
+        config_per_prompt[f"batch_{i}"] = config_per_prompt_curr
 
-            for key in keys_per_prompt:
-                if key not in config_per_prompt_curr:
-                    raise KeyError(f"Batch {i}: {key} is not specified anywhere.")
+    print("[yellow]Đang tạo nội dung đề thi...[/yellow]")
 
-    path = output
-    if path == "":
-        path = f"./dist/{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    if not os.path.exists(path):
-        os.makedirs(path)
-    if not os.path.exists(os.path.join(path, "assets")):
-        os.makedirs(os.path.join(path, "assets"))
-    if not os.path.exists(os.path.join(path, "logs")):
-        os.makedirs(os.path.join(path, "logs"))
-    if not os.path.exists(os.path.join(path, "prompts")):
-        os.makedirs(os.path.join(path, "prompts"))
-
-    print(f"[yellow]Đang tạo đề thi tại [white]{path}[/white]...[/yellow]")
-
-    print("[blue]├── [/blue][yellow]Đang tạo nội dung đề thi...[/yellow]")
-
-    content_handler(path, config_global, config_per_prompt, always_use_llm)
+    content_handler(path, config_global, config_per_prompt)
 
     if raw_content_only:
-        print(
-            "[blue]└── [/blue][green]File zip QTI và file docx sẽ không được tạo.[/green]"
-        )
+        print("[green]File zip QTI và file docx sẽ không được tạo.[/green]")
     else:
-        print("[blue]├── [/blue][yellow]Đang tạo file zip QTI...[/yellow]")
-        qti_handler(path)
-
-        print("[blue]└── [/blue][yellow]Đang tạo file docx...[/yellow]")
-        docx_handler(path)
+        txt_to_docx_qti(
+            input=os.path.join(path, "content.txt"), output=os.path.join(path)
+        )
 
 
 if __name__ == "__main__":
-    run(generate)
+    run(main, alt=[txt_to_docx, txt_to_docx_qti, txt_to_qti])

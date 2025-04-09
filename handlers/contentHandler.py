@@ -1,23 +1,42 @@
 import importlib.util
-import json
 import os
 import random
+import re
 import shutil
 
 import dotenv
+import soundfile as sf
+from PIL import Image
 from rich import print
-from rich.prompt import Confirm
 
 dotenv.load_dotenv()
 
+# https://github.com/gpoore/text2qti/blob/master/text2qti/quiz.py
+# For generating DOCX file. Syntaxes outside these are currently not supported.
+QUESTION_PATTERN = r"^\d+\."
+ANSWER_PATTERNS = {
+    "mctf": r"^\*?[a-zA-Z]\)",
+    "multans": r"^\[\*?\s?\]",
+    "shortans": r"^\*",
+}
+SOLUTION_PATTERN = r"^\!"
+ANSWER_OR_SOLUTION_PATTERN = "|".join(
+    f"({p})" for p in list(ANSWER_PATTERNS.values()) + [SOLUTION_PATTERN]
+)
+MEDIA_PATTERN = r"^\!\[[^\]]*\]\([^\)]+\)"
+MEDIA_COMPONENTS_PATTERN = r"!\[([^\]]*)\]\(([^)]+)\)"
 
-def load_handler(handler_type: str, handler_name: str):
-    handler_path = os.path.join("handlers", handler_type, f"{handler_name}.py")
+IMAGE_FORMATS = ["gif", "jpeg", "jpg", "svg", "png"]
+AUDIO_FORMATS = ["mp3", "mpeg"]
+
+
+def load_handler(handler_name: str):
+    handler_path = os.path.join("handlers/custom", f"{handler_name}.py")
 
     if not os.path.exists(handler_path):
         raise ImportError(f"Module {handler_name} not found at {handler_path}.")
 
-    module_name = f"handlers.{handler_type}.{handler_name.replace('/', '.')}"
+    module_name = f"handlers.custom.{handler_name.replace('/', '.')}"
 
     spec = importlib.util.spec_from_file_location(module_name, handler_path)
     module = importlib.util.module_from_spec(spec)
@@ -29,129 +48,182 @@ def load_handler(handler_type: str, handler_name: str):
     return module.handler
 
 
-def content_handler(
-    path: str, config_global: dict, config_per_prompt: dict, always_use_llm: bool
-):
-    content_dir = os.path.join(path, "content.txt")
+def txt_to_json(content: str):
+    problems = {}
 
-    if os.path.isfile(content_dir):
-        do_overwrite = Confirm.ask(
-            (
-                "[yellow]Bạn có muốn ghi đè lên nội dung đề thi định dạng QTI-compatible tại [/yellow]"
-                f"[white]{content_dir}[/white]"
-                "[yellow]?[/yellow]"
+    for i, problem_raw in enumerate(
+        re.split(QUESTION_PATTERN, content, flags=re.MULTILINE)[1:]
+    ):
+        chunks = [
+            chunk.strip()
+            for chunk in re.split(
+                ANSWER_OR_SOLUTION_PATTERN, problem_raw, flags=re.MULTILINE
             )
-        )
-        if not do_overwrite:
+            if chunk
+        ]
+
+        answers = []
+        solution = ""
+        for j in range(1, len(chunks), 2):
+            prefix, content = chunks[j], chunks[j + 1]
+            if re.match(SOLUTION_PATTERN, prefix):
+                solution = content
+            else:
+                answers.append((prefix, content))
+        medias = []
+        for media_raw in [
+            line.strip()
+            for line in chunks[0].splitlines()
+            if re.match(MEDIA_PATTERN, line.strip())
+        ]:
+            _, media_path = re.search(MEDIA_COMPONENTS_PATTERN, media_raw).groups()
+            medias.append(media_path)
+        question = re.sub(MEDIA_PATTERN[1:], "", chunks[0]).strip()
+
+        problems[f"q{i + 1}"] = {
+            "question": question,
+            "answers": answers,
+            "solution": solution,
+            "medias": medias,
+        }
+
+    return problems
+
+
+def json_to_txt(problems: dict, path):
+    if not problems:
+        return ""
+
+    indent_size = max(len(str(len(problems))) + 2, 4)
+
+    def _get_formatted_multiline_str(p: str, s: str):
+        if not s:
+            return ""
+        stripped_lines = [line.strip() for line in s.splitlines()]
+        formatted_lines = [
+            f"{' ' * indent_size}{line}" if line else "" for line in stripped_lines
+        ]
+        formatted_lines[0] = p.ljust(indent_size) + stripped_lines[0]
+        return "\n".join(formatted_lines)
+
+    content = ""
+
+    if path:
+        assets_dir = os.path.join(path, "assets")
+        os.makedirs(assets_dir, exist_ok=True)
+
+    for i, (key, problem) in enumerate(problems.items()):
+        question = problem["question"]
+        solution = problem["solution"]
+        answers = problem["answers"]
+        medias = problem["medias"]
+
+        for j, media_loc in enumerate(medias):
+            media_format = os.path.splitext(media_loc)[1][1:]
+
+            if os.path.isfile(media_loc):
+                if path:
+                    if media_format in IMAGE_FORMATS:
+                        img = Image.open(media_loc)
+                        media_path = os.path.join(
+                            assets_dir,
+                            f"{key}_{j}.png",
+                        )
+                        img.save(media_path)
+                    elif media_format in AUDIO_FORMATS:
+                        data, samplerate = sf.read(media_loc)
+                        media_path = os.path.join(
+                            assets_dir,
+                            f"{key}_{j}.mp3",
+                        )
+                        sf.write(media_path, data, samplerate)
+                    else:
+                        raise Exception(f"Invalid or unsupported media at: {media_loc}")
+                question += f"\n\n![{key}_{j}]({os.path.abspath(media_loc)})"
+            else:
+                raise Exception(f"Invalid or unsupported media at: {media_loc}")
+
+        content += _get_formatted_multiline_str(f"{i + 1}.", question) + "\n\n"
+        if solution:
+            content += _get_formatted_multiline_str("!", solution) + "\n\n"
+        for prefix, answer in answers:
+            content += _get_formatted_multiline_str(prefix, answer) + "\n\n"
+
+    return content
+
+
+def content_handler(path: str, config_global: dict, config_per_prompt: dict):
+    content_dir = os.path.join(path, "content.txt")
+    logs_dir = os.path.join(path, "logs")
+    os.makedirs(logs_dir, exist_ok=True)
+
+    problems = {}
+    n_prompts = len(config_per_prompt)
+    for i, (key, config_per_prompt_curr) in enumerate(config_per_prompt.items()):
+        print((f"[blue]├── [/blue][yellow]Đang xử lí batch {i + 1}/{n_prompts}..."))
+
+        problems_curr = {}
+
+        if config_per_prompt_curr["mode"] == "manual":
+            with open(config_per_prompt_curr["source"], "r", encoding="utf-8") as f:
+                problems_curr = txt_to_json(f.read())
+
             print(
                 (
                     "[blue]│   └── [/blue]"
-                    "[green]Đã đọc nội dung đề thi định dạng QTI-compatible thành công: [/green]"
-                    f"[white]{content_dir}[/white]"
+                    + f"[green]Đã đọc nội dung đề thi tại [white]{content_dir}[/white] thành công.[/green]"
                 )
             )
 
-            with open(content_dir, "r", encoding="utf-8") as log:
-                return log.read()
+        if config_per_prompt_curr["mode"] == "generated":
+            prompt_name = config_per_prompt_curr["prompt"]
 
-    content_dict = {}
-    n_prompts = len(config_per_prompt)
-    for i, (key, config_per_prompt_curr) in enumerate(config_per_prompt.items()):
-        prompt_name = config_per_prompt_curr["prompt"]
+            prompt_dir = os.path.join("prompts", prompt_name)
+            prompt_copy_dir = os.path.join(path, prompt_dir)
+            os.makedirs(os.path.dirname(prompt_copy_dir), exist_ok=True)
+            shutil.copy(prompt_dir, os.path.join(path, prompt_dir))
 
-        print(
-            (
-                "[blue]│   ├── [/blue]"
-                f"[yellow]Đang xử lí batch {i + 1}/{n_prompts} (prompt: [white]{prompt_name}[/white])..."
-            )
-        )
+            problems_curr = {}
 
-        prompt_dir = os.path.join("prompts", f"{prompt_name}.txt")
-        prompt_copy_dir = os.path.join(path, prompt_dir)
-        os.makedirs(os.path.dirname(prompt_copy_dir), exist_ok=True)
-        shutil.copy(prompt_dir, os.path.join(path, prompt_dir))
+            front_handler = load_handler(config_per_prompt_curr["handler"])
+            n_problems = config_per_prompt_curr["n_problems"]
 
-        content_curr_dict = {}
+            with open(prompt_dir, "r", encoding="utf-8") as f:
+                prompt_content = f.read()
 
-        n_attempts = 0
-        succeeded = False
-        while not succeeded:
-            n_attempts += 1
+            problems_curr, response = front_handler(prompt_content, n_problems)
+
+            content_curr_dir = os.path.join(logs_dir, f"{key}.txt")
+            with open(content_curr_dir, "w+", encoding="utf-8") as f:
+                f.write(json_to_txt(problems_curr, None))
+
+            response_dir = os.path.join(logs_dir, f"{key}.json")
+            with open(response_dir, "w+", encoding="utf-8") as f:
+                f.write(response)
 
             print(
-                f"[blue]│   │   ├── [/blue][yellow]Lần chạy #{n_attempts}...[/yellow]"
-            )
-
-            do_use_llm = always_use_llm or Confirm.ask(
-                "[yellow]Bạn có muốn dùng LLM để sinh mới nội dung?[/yellow]"
-            )
-
-            log_dir = os.path.join(path, "logs", f"{key}.json")
-
-            try:
-                if do_use_llm:
-                    front_handler = load_handler(
-                        "frontHandlers", config_per_prompt_curr["front_handler"]
-                    )
-                    n_problems = config_per_prompt_curr["n_problems"]
-
-                    prompt_dir = os.path.join("prompts", f"{prompt_name}.txt")
-                    with open(prompt_dir, "r", encoding="utf-8") as log:
-                        prompt_content = log.read()
-
-                    content_curr_dict = front_handler(prompt_content, n_problems)
-
-                    with open(log_dir, "w+", encoding="utf-8") as log:
-                        json.dump(content_curr_dict, log, ensure_ascii=False, indent=4)
-                else:
-                    with open(log_dir, "r", encoding="utf-8") as log:
-                        content_curr_dict = json.load(log)
-                succeeded = True
-
-            except Exception as error_msg:
-                print(
-                    (
-                        "[blue]│   │   │   ├── [/blue]"
-                        f"[red]Thông báo lỗi: [/red]"
-                        f"[white]{error_msg}[/white]"
-                    )
+                (
+                    "[blue]│   └── [/blue]"
+                    + f"[green]Đã đọc nội dung đề thi được sinh bởi prompt [white]{prompt_name}[/white] thành công.[/green]"
                 )
-                print(
-                    (
-                        "[blue]│   │   │   ├── [/blue]"
-                        f"[red]Xin hãy kiểm tra nội dung đề thi định dạng JSON tại: [/red]"
-                        f"[white]{log_dir}[/white]"
-                    )
-                )
-                print("[blue]│   │   │   └── [/blue][yellow]Đang thử lại...[/yellow]")
-
-        content_dict.update(
-            {f"{key}_{_key}": _value for _key, _value in content_curr_dict.items()}
-        )
-
-        print(
-            (
-                "[blue]│   │   └── [/blue]"
-                + f"[green]Đã đọc nội dung đề thi được sinh bởi prompt [white]{prompt_name}[/white] thành công.[/green]"
             )
+
+        problems.update(
+            {f"{key}_{_key}": _value for _key, _value in problems_curr.items()}
         )
 
     do_shuffle = config_global["shuffle"]
     if do_shuffle:
-        content_dict_items = list(content_dict.items())
-        random.shuffle(content_dict_items)
-        content_dict = dict(content_dict_items)
+        problems_items = list(problems.items())
+        random.shuffle(problems_items)
+        problems = dict(problems_items)
 
-    back_handler = load_handler("backHandlers", config_global["back_handler"])
-    content = back_handler(content_dict, path)
-
-    content_dir = os.path.join(path, "content.txt")
-    with open(content_dir, "w+", encoding="utf-8") as log:
-        log.write(content)
+    with open(content_dir, "w+", encoding="utf-8") as f:
+        f.write(json_to_txt(problems, path))
 
     print(
         (
-            "[blue]│   └── [/blue]"
+            "[blue]└── [/blue]"
             "[green]Đã tạo nội dung đề thi định dạng QTI-compatible thành công: [/green]"
             f"[white]{content_dir}[/white]"
         )

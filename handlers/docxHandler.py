@@ -1,14 +1,15 @@
 import os
+import re
+import warnings
 
 from docx import Document
-from docx.enum.table import WD_ALIGN_VERTICAL
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement, ns
 from docx.oxml.xmlchemy import BaseOxmlElement
-from docx.shared import Inches, Pt
-from docx.text import paragraph
+from docx.shared import Cm, Pt
 from docx.text.run import Run
-from rich import print
+
+from .contentHandler import ANSWER_PATTERNS, IMAGE_FORMATS, txt_to_json
 
 
 def create_element(name):
@@ -61,43 +62,17 @@ def add_page_number(run: Run):
     run._r.append(fldChar4)
 
 
-def line_detect(line: str):
-    """
-    Check if line is in question or option content
+def docx_handler(dir_input: str, dir_output: str):
+    with open(os.path.join(dir_input), "r", encoding="utf-8") as f:
+        content = f.read()
 
-    0 - Child line (for multi-line questions or options)
-    1 - First line of question
-    2 - First line of option
-    3 - First line of correct option
-    -1 - Invalid line (not a question or option)
-    """
-    if "\n" in line:
-        raise ValueError(f'"{line}" is not a single line')
-    if line == "" or line.lstrip() != line:
-        return 0
-    elif line[0].isnumeric():
-        return 1
-    elif len(line) >= 2 and line[0].isalpha() and line[1] == ")":
-        return 2
-    elif len(line) >= 3 and line[0] == "*" and line[1].isalpha() and line[2] == ")":
-        return 3
-    else:
-        return -1
-
-
-def docx_handler(path: str):
-    with open(os.path.join(path, "content.txt"), "r", encoding="utf-8") as log:
-        exam_content = log.read()
-
-    if len(exam_content) == 0:
-        raise ValueError("Nội dung đề thi không hợp lệ")
+    problems = txt_to_json(content)
 
     doc = Document()
 
-    # Add page numbers and footers
     for section in doc.sections:
-        section.left_margin = Inches(0.9)
-        section.right_margin = Inches(0.6)
+        section.left_margin = Cm(2.0)
+        section.right_margin = Cm(2.0)
         footer = section.footer
         footer_para = (
             footer.paragraphs[0] if footer.paragraphs else footer.add_paragraph()
@@ -105,177 +80,105 @@ def docx_handler(path: str):
         add_page_number(footer_para.add_run())
         footer_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
-    # Style
     style = doc.styles["Normal"]
     font = style.font
     font.name = "Times New Roman"
     font.size = Pt(14)
 
-    table = doc.add_table(rows=1, cols=2)
+    n_problems_of_ptype = {}
 
-    # Header
-    left = table.cell(0, 0)
-    left.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-    header = left.add_paragraph()
-    header.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    header.add_run("TRƯỜNG ĐẠI HỌC KHOA HỌC TỰ NHIÊN\n").font.size = Pt(12)
-    header.add_run("TRƯỜNG THPT CHUYÊN KHTN\n").bold = True
+    my_table = doc.add_table(0, 2)
 
-    title = left.add_paragraph()
-    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    title.add_run("ĐỀ LUYỆN TẬP\n\n").bold = True
+    for problem in problems.values():
+        answer_prefix, answer_content = problem["answers"][0]
+        ptype = ""
+        if re.match(ANSWER_PATTERNS["mctf"], answer_prefix):
+            ptype = "multiple_choice"
+        if re.match(ANSWER_PATTERNS["shortans"], answer_prefix) and re.match(
+            r"^[SD]+$", answer_content
+        ):
+            ptype = "true_false"
 
-    # Exam info
-    right = table.cell(0, 1)
-    right.vertical_alignment = WD_ALIGN_VERTICAL.CENTER
-    info = right.add_paragraph()
-    info.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    info.add_run("ĐỀ THI ÔN TẬP CHỦ ĐỀ\n").bold = True
-    info.add_run("Môn: Tin học\n").bold = True
-    info.add_run(
-        "Thời gian làm bài: ... phút, không kể thời gian phát đề\n\n"
-    ).italic = True
+        if not ptype:
+            warnings.warn("Skipping problem of unknown or unsupported type")
+            continue
 
-    # Student info
-    student_info = doc.add_paragraph()
-    student_info.add_run(
-        "\nHọ tên thí sinh:....................................................................."
-    ).bold = True
-    student_info.add_run("Số báo danh:........................\n").bold = True
-
-    # Instructions
-    instructions = doc.add_paragraph()
-    instructions.add_run(
-        "PHẦN I. Câu trắc nghiệm nhiều phương án lựa chọn. "
-    ).bold = True
-
-    # Add exam content
-    lines = exam_content.split("\n")
-    total_number_questions = 0
-    current_line_number = 1
-    question_paragraph: paragraph.Paragraph | None = None
-    while current_line_number <= len(lines):
-        current_line = lines[current_line_number - 1]
-        type_current_line = line_detect(current_line)
-        if type_current_line == -1:
-            raise ValueError(
-                f'In "{path}/{"content.txt"}" on line {current_line_number}:\nUnexpected line'
-            )
-        elif type_current_line == 0:
-            if len(current_line.strip()) != 0:
-                raise ValueError(
-                    f'In "{path}/{"content.txt"}" on line {current_line_number}:\nInvalid content format'
-                )
-            current_line_number += 1
+        if ptype in n_problems_of_ptype.keys():
+            n_problems_of_ptype[ptype] += 1
         else:
-            content_lines: list[str] = [current_line]
-            buffer_line_number = current_line_number + 1
-            while (
-                buffer_line_number <= len(lines)
-                and line_detect(lines[buffer_line_number - 1]) == 0
-            ):
-                content_lines.append(lines[buffer_line_number - 1])
-                buffer_line_number += 1
+            n_problems_of_ptype[ptype] = 1
 
-            while content_lines[-1].strip() == "":
-                content_lines.pop()
+        question = problem["question"]
+        answers = problem["answers"]
+        solution = problem["solution"]
+        medias = problem["medias"]
 
-            if type_current_line == 2:  # Normal option
-                for index, content_line in enumerate(content_lines):
-                    if line_detect(content_line) == 0:
-                        question_paragraph.add_run(f"\n{content_line}")
-                    else:
-                        array_option = content_line.split(")", 1)
-                        if len(array_option) != 2:
-                            raise ValueError(
-                                f'In "{path}/{"content.txt"}" on line {current_line_number + index}:\nInvalid option format'
-                            )
-                        order_option, content_option = array_option
-                        question_paragraph.add_run(
-                            f"\n{order_option.upper()}. "
-                        ).bold = True
-                        question_paragraph.add_run(content_option)
-                if (
-                    buffer_line_number <= len(lines)
-                    and line_detect(lines[buffer_line_number - 1]) == 1
-                ):
-                    # Set None at the end of question paragraph
-                    question_paragraph = None
-            elif type_current_line == 3:  # Correct option
-                for index, content_line in enumerate(content_lines):
-                    if line_detect(content_line) == 0:
-                        question_paragraph.add_run(f"\n{content_line}")
-                    else:
-                        array_option = content_line[1:].split(")", 1)
-                        if len(array_option) != 2:
-                            raise ValueError(
-                                f'In "{path}/{"content.txt"}" on line {current_line_number + index}:\nInvalid correct option format'
-                            )
-                        order_option, content_option = array_option
-                        order_option_runner = question_paragraph.add_run(
-                            f"\n{order_option.upper()}. "
-                        )
-                        order_option_runner.underline = True
-                        order_option_runner.bold = True
-                        question_paragraph.add_run(content_option)
-                if (
-                    buffer_line_number <= len(lines)
-                    and line_detect(lines[buffer_line_number - 1]) == 1
-                ):
-                    # Set None at the end of question paragraph
-                    question_paragraph = None
-            else:  # Question content
-                for index, content_line in enumerate(content_lines):
-                    if len(content_line) > 0 and content_line[0].isnumeric():
-                        index_separator = content_line.find(".")
-                        if index_separator == -1:
-                            raise ValueError(
-                                f'In "{path}/{"content.txt"}" on line {current_line_number + index}:\nInvalid question content format'
-                            )
-                        array_answer = content_line.split(".", 1)
-                        if len(array_answer) != 2:
-                            raise ValueError(
-                                f'In "{path}/{"content.txt"}" on line {current_line_number + index}:\nInvalid question content format'
-                            )
-                        number_question, content_question = array_answer
-                        if not number_question.isnumeric():
-                            raise ValueError(
-                                f'In "{path}/{"content.txt"}" on line {current_line_number + index}:\nInvalid question content format'
-                            )
+        if ptype == "multiple_choice":
+            row = my_table.add_row()
+            row.cells[0].add_paragraph().add_run(
+                f"Câu 1.{n_problems_of_ptype[ptype]}"
+            ).bold = True
+            r = row.cells[1].add_paragraph()
+            r.add_run(question)
+            for media_path in medias:
+                media_format = os.path.splitext(media_path)[1][1:]
+                if media_format in IMAGE_FORMATS:
+                    r.add_run("\n\n")
+                    r.add_run().add_picture(media_path, width=Cm(5.0))
 
-                        if question_paragraph is not None:
-                            raise ValueError(
-                                f'In "{path}/{"content.txt"} on line {current_line_number + index}:\nInvalid question content format'
-                            )
+            answer = 0
+            for i, (prefix, choice) in enumerate(answers):
+                if prefix[0] == "*":
+                    answer = i
+                row = my_table.add_row()
+                row.cells[0].add_paragraph().add_run(chr(ord("A") + i)).bold = True
+                row.cells[1].add_paragraph().add_run(choice)
 
-                        question_paragraph = doc.add_paragraph()
-                        total_number_questions += 1
-                        question_paragraph.add_run(
-                            f"Câu {number_question}: "
-                        ).bold = True
-                        question_paragraph.add_run(content_question)
-                    else:
-                        question_paragraph.add_run(f"\n{content_line}")
-            current_line_number = buffer_line_number
+            row = my_table.add_row()
+            row.cells[0].add_paragraph().add_run("Lời giải").bold = True
+            row.cells[1].add_paragraph().add_run(solution)
 
-    # Add total number of questions
-    instructions.add_run(
-        f"Thí sinh trả lời từ câu 1 đến câu {total_number_questions}. Mỗi câu hỏi thí sinh chỉ chọn một phương án."
-    )
+            row = my_table.add_row()
+            row.cells[0].add_paragraph().add_run("Đáp án").bold = True
+            row.cells[1].add_paragraph().add_run(chr(ord("A") + answer))
 
-    # Footer note
-    footer = doc.add_paragraph()
-    footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    footer.add_run(
-        "\n\n----------------------- HẾT -----------------------\n\n"
-    ).bold = True
-    footer.add_run("- Thí sinh không được sử dụng tài liệu;\n").italic = True
-    footer.add_run("- Cán bộ coi thi không giải thích gì thêm.").italic = True
+        if ptype == "true_false":
+            question_without_statements, *statements = [
+                chunk.strip()
+                for chunk in re.split(
+                    r"^\*?[a-zA-z]\)",
+                    "\n".join([line.strip() for line in question.splitlines()]),
+                    flags=re.MULTILINE,
+                )
+                if chunk
+            ]
 
-    doc.save(os.path.join(path, "de_thi.docx"))
+            row = my_table.add_row()
+            row.cells[0].add_paragraph().add_run(
+                f"Câu 2.{n_problems_of_ptype[ptype]}"
+            ).bold = True
+            r = row.cells[1].add_paragraph()
+            r.add_run(question_without_statements)
+            for media_path in medias:
+                media_format = os.path.splitext(media_path)[1][1:]
+                if media_format in IMAGE_FORMATS:
+                    r.add_run("\n\n")
+                    r.add_run().add_picture(media_path, width=Cm(5.0))
 
-    print(
-        "[blue]    └── [/blue]"
-        "[green]Đã tạo file docx thành công: [/green]"
-        f"[white]{os.path.join(path, 'de_thi.docx')}[/white]"
-    )
+            answer = 0
+            for i, statement in enumerate(statements):
+                row = my_table.add_row()
+                row.cells[0].add_paragraph().add_run(
+                    f"{chr(ord('A') + i)})"
+                ).bold = True
+                row.cells[1].add_paragraph().add_run(statement)
+
+            row = my_table.add_row()
+            row.cells[0].add_paragraph().add_run("Lời giải").bold = True
+            row.cells[1].add_paragraph().add_run(solution)
+
+            row = my_table.add_row()
+            row.cells[0].add_paragraph().add_run("Đáp án").bold = True
+            row.cells[1].add_paragraph().add_run(answers[0][1])
+
+    doc.save(os.path.join(dir_output, "exam.docx"))

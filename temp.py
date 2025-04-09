@@ -42,7 +42,7 @@ def handler():
     Return LLM's response.
     """
 
-    prompt_content = """Help me generate a multiple choice contest about SQL and database.
+    prompt_content = """Help me generate a multiple choice exam about SQL and database.
     """
     n_problems = 5
 
