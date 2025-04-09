@@ -1,3 +1,4 @@
+beautifulsoup4>=4.13.3
 clize>=5.0.2
 google-genai>=1.7.0
 matplotlib>=3.9.4
@@ -7,5 +8,6 @@ pydantic>=2.10.6
 python-dotenv>=1.0.1
 python_docx>=1.1.2
 rich>=13.9.4
+soundfile>=0.13.1
 text2qti>=0.7.1
 tomli>=2.2.1

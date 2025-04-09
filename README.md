@@ -1,12 +1,9 @@
 # Exam Generator Tool
 
-> [!WARNING]
-> Still in beta. Breaking changes are expected without notice. Please read
-> the documentation carefully.
+> [!WARNING] Still in beta. Breaking changes are expected without notice. Please
+> read the documentation carefully.
 
-Exam Generator is a python tool for generating exam.
-
-This tool uses API from [OpenRouter](https://openrouter.ai/).
+Exam Generator is a Python tool for generating exam.
 
 ## Table of Contents
 
@@ -65,20 +62,20 @@ For basic usage, customise `config.toml` to your own liking and simply run
 Find all options by running `python main.py --help`.
 
 ```
-$ python main.py --help
-
 Usage: main.py [OPTIONS]
 
-Generate a contest from prompts.
+Generate a exam from LLM prompts.
 
 Options:
   -c, --config=STR         Path to config file. (default: config.toml)
   -o, --output=STR         Path to output. Will be created if not exists. (default: dist/{datetime})
   -r, --raw-content-only   docx and QTI zip files will not be generated.
-  -a, --always-use-llm     Always use LLM to generate content instead of asking each time.
 
 Other actions:
   -h, --help               Show the help
+  --txt-to-docx            Generate exam content in docx format from QTI-compatible text format.
+  --txt-to-docx-qti        Generate exam content in docx format, along with exam in QTI format, from QTI-compatible text format.
+  --txt-to-qti             Generate exam in QTI format from QTI-compatible text format.
 ```
 
 ### Config file
@@ -90,49 +87,29 @@ The default config file is at `config.toml`.
 
 [global]
 shuffle = false
-back_handler = "default"
 
 [[batch]]
-prompt = "informatics/database"
+prompt = "informatics/database.txt"
 n_problems = 24
-front_handler = "multiple_choice/default"
+handler = "multiple_choice/default"
 
 [[batch]]
-prompt = "informatics/database"
+prompt = "informatics/database.txt"
 n_problems = 4
-front_handler = "true_false/default"
+handler = "true_false/default"
 ```
 
 This config file specifies 2 batches. The first one contains 24 problems, using
-front handler `multiple_choice/default`. The second one contains 4 problems,
-using front handler `true_false/default`. Note how both uses the prompt
-`informatics/database`.
+handler `multiple_choice/default`. The second one contains 4 problems, using
+handler `true_false/default`. Note how both uses the prompt
+`informatics/database.txt`.
 
 Explanation:
 
-- `front_handler = "multiple_choice/default"`:
+- `shuffle = false`:
 
-    - [`handlers/frontHandlers/multiple_choice/default.py`](handlers/frontHandlers/multiple_choice/default.py)
-      must contain the function `handler(prompt_content, n_problems)`.
-
-    - `prompt_content` is the prompt to be sent to the LLM.
-
-    - `n_problems` is the number of problems to be generated.
-
-    - The function returns a `dict` (to be written to and read from JSON files).
-
-- `back_handler = "default"`
-
-    - [`handlers/backHandlers/default.py`](handlers/backHandlers/default.py)
-      must contain the function `handler(content_dict, path)`.
-
-    - `content_dict` is a dict that maps `batch_{id}` to the LLM's response
-      (given by `front_handler`) for that batch.
-
-    - `path` is the output path. Useful if you want to generate images to be
-      attached.
-
-    - The function returns a `str` (to be written to the txt content file).
+    - Generated problems will not be shuffled. Set `shuffle = true` if needed
+      when there are multiple batches.
 
 - `prompt = "informatics/database"`:
 
@@ -146,12 +123,52 @@ Explanation:
 
     - Sometimes the expected output length may exceed the LLM's limit. In this
       case, you can specify multiple batches while using the same `prompt` and
-      `front_handler`.
+      `handler`.
 
-- `shuffle = false`:
+- `handler = "multiple_choice/default"`:
 
-    - Generated problems will not be shuffled. Useful when there are multiple
-      batches.
+    - [`handlers/custom/multiple_choice/default.py`](handlers/frontHandlers/multiple_choice/default.py)
+      must contain the function `handler(prompt_content, n_problems)`.
+
+    - `prompt_content`: the prompt to be sent to the LLM.
+
+    - `n_problems`: the number of problems to be generated.
+
+    - The function returns a tuple `(problems, response)`.
+
+        - `problems` is a dict with the following keys:
+
+            - `question`: a string, containing the question text
+
+            - `solution`: a string, containing the solution text
+
+            - `answers`: a list of tuples of two strings (the answer prefix and
+              its content), e.g.
+
+                - `("a)", "...")`: Incorrect choice a) of multiple choice
+                  problem.
+                - `("b)", "...")`: Correct choice b) of multiple choice problem.
+                - `("*", "...")`: Fixed correct answer of fill-in-the-blank
+                  problem.
+
+            - `medias`: a list of strings, each containing path to a media to be
+              attached to the question text (e.g. image, audio)
+
+Importing medias from URL is currently not supported.
+
+For each batch, instead of generating problems using LLM, you can prepare a
+content file in QTI-compatible text format yourself and specify its path using
+the key `source`.
+
+```toml
+# config_example.toml
+
+[global]
+shuffle = false
+
+[[batch]]
+source = "examples/example.txt"
+```
 
 ### Output
 
@@ -163,21 +180,20 @@ dist
 ├── {datetime}:
 │     ├── assets
 │     │     └── ... # Images to be attached if needed.
-│     ├── logs
-│     │     └── ... # LLM outputs in JSON format.
 │     ├── prompts
 │     │     └── ... # Copies of the prompts used.
-│     ├── content.txt # Contest problems in QTI-compatible txt format.
-│     ├── dethi.docx # Contest problems in docx format.
+│     ├── responses
+│     │     └── ... # For each batch, LLM responses in JSON format and problems in QTI-compatible text format.
+│     ├── content.txt # Exam problems in QTI-compatible text format.
+│     ├── exam.docx # Exam problems in docx format.
 │     └── qti.zip # QTI file for Canvas.
 └── ...
 ```
-
-> [!WARNING]  
-> Docx generation is currently NOT supported for true/false questions.
 
 ## More information
 
 For more information about the QTI-compatible text format, consult
 [the `text2qti` repository](https://github.com/gpoore/text2qti).
 
+Certain image and audio formats are supported, including but not limited to
+`png` and `mp3`.
