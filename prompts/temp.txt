@@ -1,0 +1,105 @@
+Giúp mình tạo một đề thi về chủ đề Kết nối mạng cho học sinh lớp 12 theo chương trình giáo dục phổ thông 2018.
+
+Dưới đây là nội dung kiến thức các bạn học sinh đã học.
+Đây chỉ là gợi ý, bạn hoàn toàn có thể sử dụng chúng như từ khóa để nghĩ ra những câu hỏi sáng tạo.
+
+```
+Kết nối mạng
+* Cơ sở mạng máy tính
+1. Một số khái niệm mở đầu
+- **Mạng máy tính** là hệ thống các thiết bị số được kết nối với nhau để truyền dữ liệu và trao đổi thông tin, có thể kết nối bằng dây cáp mạng hoặc sóng vô tuyến.
+- **LAN** Local Area Network – mạng cục bộ) là loại mạng kết nối những máy tính trong một phạm vi nhỏ như toà nhà, cơ quan, trưởng học, nhà riêng.
+Các thành phần chính của mạng LAN bao gồm: máy chủ (server), máy tính PC của người dùng, máy in, các thiết bị mạng (cáp mạng, Switch, Modem, Router, Access Point,...).
+- **WLAN** (Wireless LAN), còn gọi là mạng cục bộ không dây hay mạng LAN không dây, là một loại mạng LAN sử dụng sóng điện từ để giúp các thiết bị mạng (PC, điện thoại di động, máy tính bảng và các loại thiết bị số khác) kết nối với nhau mà không cần sử dụng dây cáp mạng. WLAN còn được gọi là mạng Wi-Fi (Wireless Fidelity).
+Hiện nay, mạng WLAN không chỉ dùng sóng điện từ để truyền dữ liệu mà có thể sử dụng cả cáp mạng, chẳng hạn để kết nối với máy tính để bàn có vị trí cố định. Thông thường sóng Wi-Fi dành cho những thiết bị di động như Smartphone, máy tính bảng, laptop.
+- **WAN** (WAN – Wide Area Network) là loại mạng máy tính bao trùm một phạm vi địa lí rộng lớn, kết nối các mạng LAN trong một khu vực lớn như một thành phố, một quốc gia hoặc nhiều quốc gia. Internet chính là một mạng WAN.
+- **ISP** là nhà cung cấp dịch vụ truy cập Internet, kết nối thiết bị mạng với Internet và cung cấp các dịch vụ liên quan.
+2. Thiết bị mạng và giao thức mạng
+- **Cáp mạng** là phương tiện truyền tải dữ liệu giữa các thiết bị trong mạng có dây. Hai loại cáp mạng thông dụng hiện nay là cáp xoắn và cáp quang.
+Cáp xoắn có lõi kim loại và sử dụng dòng điện để truyền dữ liệu, còn cáp quang sử dụng tia sáng để truyền nên lõi làm bằng chất liệu trong suốt, thường là nhựa tổng hợp hoặc sợi thủy tinh. Cáp xoắn sử dụng giác cảm RJ-45, còn cáp quang có nhiều loại đầu nối khác nhau.
+- Các thiết bị số trong mạng máy tính đặt trong một phạm vi địa lí nhất định để người dùng có thể truyền dữ liệu và trao đổi thông tin. Chia làm hai loại chính: thiết bị mạng và thiết bị đầu cuối.
+- **Thiết bị đầu cuối** bao gồm máy tính cá nhân, điện thoại thông minh, máy tính bảng, máy in và các thiết bị trong mạng Internet như camera, đèn, tủ lạnh, cảm biến nhiệt độ…
+- **Bộ giao tiếp mạng**(NIC – Network Interface Card): dùng để truyền và nhận dữ liệu qua cáp mạng hoặc sóng vô tuyến. Có 2 cổng kết nối: kết nối có dây và kết nối không dây.
+- **Switch**(Bộ chuyển mạch) là thiết bị trong mạng LAN có nhiều cổng mạng để kết nối và chuyển tiếp dữ liệu giữa các thiết bị. Switch kết nối các thiết bị (kể cả máy tính) với nhau theo mô hình mạng hình sao và đóng vai trò trung tâm; có khả năng mở rộng băng thông (số bit truyền trên giây) của đường truyền.
+- **Switch** sử dụng bảng địa chỉ MAC để xác định cổng nào để chuyển tiếp gói tin tới thiết bị nhận.
+**Địa chỉ MAC** là một địa chỉ duy nhất gồm 12 ký tự hệ thập lục phân, biểu diễn cho mỗi thiết bị trong mạng máy tính, đảm bảo tính duy nhất và quản lý hiệu quả.
+**Access Point (AP)** là thiết bị cung cấp kết nối Wi-Fi trong mạng cục bộ, cho phép các thiết bị không dây kết nối và truy cập vào mạng LAN, có thể kết nối các thiết bị có dây qua cổng mạng.
+**Router**(Bộ định tuyến) là thiết bị chuyển tiếp dữ liệu trong mạng WAN, xác định đường đi tối ưu cho gói tin đến địa chỉ đích bằng các tiêu chí như độ trễ và băng thông.
+**Modem**(Bộ điều chế và giải điều chế) chuyển đổi tín hiệu giữa số và tương tự, thường được sử dụng để kết nối với nhà **cung cấp dịch vụ Internet (ISP)** qua đường truyền tín hiệu số hóa.
+* Các Giao Thức Mạng
+I. **Giao thức mạng**
+a) Khái niệm cơ bản
+Là tập hợp các quy tắc được sử dụng để điều khiển truyền thông và trao đổi dữ liệu giữa các thiết bị trong mạng máy tính nhằm đáp ứng:
+- Định dạng và chuẩn hóa
+- Định tuyến và chuyển tiếp
+- Quản lí lưu lượng mạng
+- Bảo mật và độ tin cậy
+- Tích hợp dịch vụ và ứng dụng
+b) Một số giao thức mạng
+- **Giao thức Internet (IP)**: Quan trọng trong mạng máy tính, là một phần của bộ giao thức TCP/IP.
+- **Giao thức vận chuyển (TCP và UDP)**: Quy định cách dữ liệu được chia thành gói tin, TCP đảm bảo độ tin cậy, UDP không yêu cầu kết nối và không đảm bảo độ tin cậy.
+- **Giao thức truyền tải siêu văn bản (HTTP)**: Sử dụng để truyền tải dữ liệu của các trang web, quy định cách giao tiếp giữa máy khách và máy chủ.
+- **Giao thức truyền tải tệp (FTP)**: Dùng để truyền tải tệp giữa các máy tính.
+- **Giao thức truyền tải thư đơn giản (SMTP)**: Sử dụng để gửi và nhận thư điện tử.
+2. **Giao thức TCP**
+**TCP (Transmission Control Protocol)** là giao thức đảm bảo truyền dữ liệu ổn định và đúng thứ tự giữa các ứng dụng trên mạng. Có cơ chế kiểm tra lỗi, khôi phục và điều chỉnh tốc độ truyền dữ liệu, sử dụng cho việc truyền thông tin như hình ảnh tĩnh, tệp dữ liệu và trang web. Quá trình sử dụng TCP bao gồm:
+- Thiết lập kết nối: Điều này xảy ra khi hai máy tính thiết lập kết nối trước khi truyền dữ liệu.
+- Trao đổi dữ liệu: Dữ liệu được chia thành các gói tin, mỗi gói tin có số thứ tự và số xác nhận để đảm bảo tính toàn vẹn và đúng thứ tự.
+- Kiểm tra lỗi và khôi phục: TCP sử dụng số thứ tự và số xác nhận để xác định và sửa chữa các gói tin bị mất hoặc lỗi.
+- Kết thúc kết nối: Quá trình đóng kết nối sau khi hoàn tất trao đổi dữ liệu giữa hai thiết bị.
+3. **Giao thức IP**
+- Giao thức Internet (IP) quản lý và định tuyến gói tin trên mạng máy tính bằng cách gắn địa chỉ IP của máy gửi và máy nhận vào mỗi gói tin.
+- IP đảm bảo chuyển tiếp các gói tin đến đúng đích dựa trên địa chỉ này.
+- Địa chỉ IP là số duy nhất được gán cho mỗi thiết bị trong mạng
+- Có hai phiên bản chính là IPv4 và IPv6.
+- Các máy tính trong một mạng LAN sẽ có cùng một địa chỉ mạng.
+b) **Hệ thống miền**
+- Mỗi trang web có một địa chỉ IP duy nhất trên Internet.
+- Hệ thống tên miền DNS chuyển đổi tên miền dễ nhớ thành địa chỉ IP tương ứng, giúp người dùng truy cập web một cách thuận tiện.
+
+Tên miền được phân thành các cấp:
+- Tên miền cấp cao nhất: là phần đuôi sau cùng của tên miền. Đây có thể là viết tắt tên một quốc gia (ví dụ: vn, us, uk,...) hay một tổ chức kinh tế – xã hội (ví dụ: com, org, net, edu, gov, info, biz, xyz, io, ai,...).
+- Tên miền cấp hai: google.com, facebook.com, youtube.com, amazon.com,...
+- Tên miền cấp ba: mail.google.com, news.google.com, drive.google.com,...
+- Tên miền phụ là một phần thông tin mở rộng cho phép phân tách nội dung cho một chức năng cụ thể của trang web.
+
+*Thực hành thiết lập kết nối và sử dụng mạng
+Nhiệm vụ 1: Kết nối máy tính với Access Point:
+Bước 1. Xác định và nhập mật khẩu mạng Wi-Fi.
+Bước 2. Trên Windows 10, chọn tên mạng Wi-Fi, nhập mật khẩu và hoàn tất kết nối.
+Bước 3. Kiểm tra địa chỉ IP và xem chi tiết kết nối mạng.
+Bước 4. Mở trình duyệt web để kiểm tra kết nối.
+Nhiệm vụ 2: Kết nối máy tính với Switch:
+Bước 1. Chuẩn bị dây cáp mạng RJ45.
+Bước 2. Cắm dây vào cổng LAN trên máy tính và Switch.
+Bước 3. Quan sát đèn báo hiệu trên cổng để xác nhận kết nối vật lý thành công.
+Bước 4. Kiểm tra kết nối mạng bằng cách mở trình duyệt web.
+Nhiệm vụ 3. Kết nối thiết bị thông minh vào mạng máy tính
+Để kết nối điện thoại thông minh tới Access Point:
+- Cách 1: Truy cập Cài đặt > Kết nối > Wi-Fi, bật Wi-Fi, chọn mạng cần kết nối, nhập mật khẩu và kết nối.
+- Cách 2: Bật dịch vụ mạng di động trong Cài đặt > Kết nối > Sử dụng dữ liệu, sau đó bật Dữ liệu di động.
+Sau khi kết nối, kiểm tra kết nối bằng cách mở trình duyệt và truy cập vào trang web bất kì để xác nhận.
+Trong phòng thực hành Tin học (PC-A và PC-B):
+- Cả hai máy tính đều kết nối vào cùng một mạng LAN.
+- Đều chạy hệ điều hành Windows 10 và lưu trữ tài liệu học tập trong ổ D.
+- PC-A được kết nối với một máy in qua cổng USB.
+Nhiệm vụ 4: Để chia sẻ dữ liệu từ máy tính PC-A trên cùng mạng LAN:
+PC-A (Máy chủ chia sẻ):
+Bước 1: Nháy chuột phải vào ổ cứng chứa dữ liệu (ví dụ ổ D), chọn Properties.
+Bước 2: Chọn tab Sharing, sau đó chọn Advanced Sharing.
+Bước 3: Trên hộp thoại Advanced Sharing, tích vào ô Share this folder và chọn Permissions.
+Bước 4: Trên hộp thoại Permissions for D, chọn Everyone và tích vào Full Control, Change, Read, sau đó chọn OK để hoàn thành.
+PC-B (Máy tính truy cập):
+Bước 1: Trên máy tính PC-B, chọn This PC ở thanh menu bên trái, kéo xuống và chọn Network.
+Bước 2: Nháy đúp chuột vào biểu tượng của máy tính PC-A để truy cập thư mục có dữ liệu được chia sẻ.
+Nhiệm vụ 5: Chia sẻ máy in
+1. PC-A (Chia sẻ máy in):
+   - Mở Control Panel, chọn Devices and Printers.
+   - Nháy chuột phải vào máy in cần chia sẻ, chọn Properties > Sharing.
+   - Tích vào ô Share this printer và đặt tên chia sẻ máy in.
+2. PC-B (Kết nối đến máy in):
+   - Mở Control Panel, chọn Devices and Printers.
+   - Chọn Add a printer, sau đó chọn máy in từ danh sách các máy in được chia sẻ trên mạng LAN hoặc tìm kiếm máy in bằng Select a shared printer by name.
+3. Sau khi kết nối thành công, in một trang tài liệu từ PC-B để xác nhận kết nối và chia sẻ máy in.
+
+```

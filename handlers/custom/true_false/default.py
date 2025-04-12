@@ -27,17 +27,17 @@ class StatementsPair(BaseModel):
 
 
 class QuestionBlock(BaseModel):
-    context: str = Field(
+    topic: str = Field(
         ...,
-        description="The question's context. Keep it short.",
+        description="The question's topic. Keep it short.",
     )
     question: str = Field(
         ...,
-        description="The question itself, providing context, numbers, events, etc. MUST BE CONSISTENT WITH THE VARIABLES ABOVE.",
+        description="The detailed context, numbers, events, etc. NOT A QUESTION! Statements about this context will be made, and students will have to determine if each of them is true or false.",
     )
     solution: str = Field(
         ...,
-        description="Generate 4 possible subtasks about the question, then propose the solution (with reasoning and calculation). Be detailed: What are the given info, what the step by step solution for each subtask is.",
+        description="Generate 4 possible pairs statements about the question (one true, one false), then propose the solution (with reasoning and calculation). Be detailed: What are the given info, what the step by step solution for each subtask is.",
     )
     statements: List[StatementsPair] = Field(
         ...,
