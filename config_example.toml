@@ -1,5 +1,0 @@
-[global]
-shuffle = false
-
-[[batch]]
-source = "examples/example.txt"

@@ -25,3 +25,7 @@ This project includes the following audio file as example:
 Canon in D Major Kevin MacLeod (incompetech.com)
 Licensed under Creative Commons: By Attribution 3.0 License
 http://creativecommons.org/licenses/by/3.0/
+
+This project includes this repository as a submodule:
+
+https://github.com/substance9/text2qti

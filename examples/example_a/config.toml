@@ -1,0 +1,5 @@
+[global]
+shuffle = false
+
+[[batch]]
+source = "examples/example_a/content.txt"

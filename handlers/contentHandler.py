@@ -1,4 +1,5 @@
 import importlib.util
+import json
 import os
 import random
 import re
@@ -94,7 +95,7 @@ def json_to_txt(problems: dict, path):
     if not problems:
         return ""
 
-    indent_size = max(len(str(len(problems))) + 2, 4)
+    indent_size = max(len(str(len(problems))) + 2, 6)
 
     def _get_formatted_multiline_str(p: str, s: str):
         if not s:
@@ -112,7 +113,19 @@ def json_to_txt(problems: dict, path):
         assets_dir = os.path.join(path, "assets")
         os.makedirs(assets_dir, exist_ok=True)
 
-    for i, (key, problem) in enumerate(problems.items()):
+    n_problems = 0
+
+    for key, problem in problems.items():
+        if "raw" in problem:
+            content += problem["raw"] + "\n\n"
+            continue
+
+        if "text" in problem:
+            content += _get_formatted_multiline_str("Text: ", problem["text"]) + "\n\n"
+            continue
+
+        n_problems += 1
+
         question = problem["question"]
         solution = problem["solution"]
         answers = problem["answers"]
@@ -143,7 +156,7 @@ def json_to_txt(problems: dict, path):
             else:
                 raise Exception(f"Invalid or unsupported media at: {media_loc}")
 
-        content += _get_formatted_multiline_str(f"{i + 1}.", question) + "\n\n"
+        content += _get_formatted_multiline_str(f"{n_problems}.", question) + "\n\n"
         if solution:
             content += _get_formatted_multiline_str("!", solution) + "\n\n"
         for prefix, answer in answers:
@@ -193,13 +206,19 @@ def content_handler(path: str, config_global: dict, config_per_prompt: dict):
 
             problems_curr, response = front_handler(prompt_content, n_problems)
 
-            content_curr_dir = os.path.join(logs_dir, f"{key}.txt")
+            content_curr_dir = os.path.join(logs_dir, f"{key}_content.txt")
             with open(content_curr_dir, "w+", encoding="utf-8") as f:
                 f.write(json_to_txt(problems_curr, None))
 
-            response_dir = os.path.join(logs_dir, f"{key}.json")
-            with open(response_dir, "w+", encoding="utf-8") as f:
-                f.write(response)
+            try:
+                json.loads(response)
+                response_dir = os.path.join(logs_dir, f"{key}_response.json")
+                with open(response_dir, "w+", encoding="utf-8") as f:
+                    f.write(response)
+            except Exception:
+                response_dir = os.path.join(logs_dir, f"{key}_response.rxt")
+                with open(response_dir, "w+", encoding="utf-8") as f:
+                    f.write(response)
 
             print(
                 (
@@ -212,7 +231,7 @@ def content_handler(path: str, config_global: dict, config_per_prompt: dict):
             {f"{key}_{_key}": _value for _key, _value in problems_curr.items()}
         )
 
-    do_shuffle = config_global["shuffle"]
+    do_shuffle = config_global.get("shuffle", False)
     if do_shuffle:
         problems_items = list(problems.items())
         random.shuffle(problems_items)

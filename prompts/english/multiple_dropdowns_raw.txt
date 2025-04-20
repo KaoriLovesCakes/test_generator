@@ -1,0 +1,25 @@
+As an English exam writer for advanced students, your task is to create 5 multiple dropdowns quizes that assesses their understanding of context, vocabulary, and grammar within a cohesive passage.
+
+Passage Creation: Develop a 11-sentence paragraph on a topic related to current technology that high school student can understand. The paragraph should be sophisticated enough to challenge advanced learners.
+
+Selection of Key Phrases: Identify exactly 5 key phrases within the paragraph that are crucial to understanding the overall meaning.
+
+Key phrase Deletion: Remove each of the five key phrases from the original paragraph, replacing them with bracketed placeholders: [x]. Here x is 1, 2, 3, 4 or 5.
+
+Questions:
+Create FIVE Multiple Dropdowns Questions:** You **MUST** create **FIVE** fill-in-the-blank questions where the student must choose the most accurate and relevant statement to complete the sentence about Sophia.
+For each deleted phrase, create a multiple-choice question with four options: one correct answer (the original phrase) and three distractors that are grammatically correct but contextually inappropriate. The distractors should be plausible enough to challenge advanced learners. The correct answer marked by *.
+
+Please return the result in THIS EXACT FORMAT, but with 5 questions instead of 2. NO OTHER COMMENTS!
+
+Q. Humanoid robots, eminent characters in science fiction novels and sci-fi films, are becoming a reality. Sophia, as an example, [question1]. One month later, she had her premiere in Texas, USA, and has made multiple public appearances around the world since then. At one such event, Sophia was granted Saudi Arabian citizenship in October 2017 and even became the first Innovation Champion of the United Nations Development Programme later that year. During Sophia’s trip to Vietnam in 2018, she addressed the Industry 4.0 Summit and Expo. Sophia the Robot is the latest humanlike robot created by a Hong Kong-based company [question2]. Undoubtedly, Sophia together with other humanlike robots represents the rapid advancement in the field of robotics and artificial intelligence.
+
+{ } [question1] of which the activation was launched on Valentine’s Day, 2016
+{*} [question1] was first activated on Valentine’s Day in 2016
+{ } [question1] that had her first Valentine’s activation launched in 2016
+{ } [question1] having been initially activated on Valentine’s Day, 2016
+
+{*} [question2] whose combined efforts in AI research, engineering, and design have given birth to robots
+{ } [question2] succeeded in bringing robots to life by combining research in AI, engineering, and design
+{ } [question2] brought robots to life thanks to its accomplishments in AI research, engineering, and design
+{ } [question2] of which the joint efforts in AI research, engineering, and design in building robots

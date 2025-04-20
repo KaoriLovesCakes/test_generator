@@ -1,0 +1,6 @@
+[global]
+shuffle = false
+
+[[batch]]
+prompt = "english/multiple_dropdowns_raw.txt"
+handler = "raw"

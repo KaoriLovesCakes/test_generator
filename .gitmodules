@@ -1,0 +1,6 @@
+[submodule "handlers/text2qti"]
+	path = handlers/text2qti
+	url = git@github.com:substance9/text2qti.git
+[submodule "handlers/text2qti_forks/substance9"]
+	path = handlers/text2qti_forks/substance9
+	url = git@github.com:substance9/text2qti.git

@@ -6,21 +6,52 @@ from zipfile import ZipFile
 
 from bs4 import BeautifulSoup
 from bs4.formatter import HTMLFormatter
-from text2qti.config import Config
-from text2qti.qti import QTI
-from text2qti.quiz import Quiz
+from rich import print
 
 
 def qti_handler(dir_input: str, dir_output: str):
     with open(os.path.join(dir_input), "r", encoding="utf-8") as f:
         content = f.read()
 
-    text2qti_config = Config()
-    quiz = Quiz(content, config=text2qti_config, source_name=os.path.dirname(dir_input))
-    qti = QTI(quiz)
+    forks = ["default", "substance9"]
+    error_messages = []
+    is_successful = False
+    for fork in forks:
+        try:
+            if fork == "default":
+                from text2qti.config import Config
+                from text2qti.qti import QTI
+                from text2qti.quiz import Quiz
+            elif fork == "substance9":
+                from .text2qti_forks.substance9.text2qti.config import Config
+                from .text2qti_forks.substance9.text2qti.qti import QTI
+                from .text2qti_forks.substance9.text2qti.quiz import Quiz
 
-    qti_dir = os.path.join(dir_output, "qti.zip")
-    qti.save(qti_dir)
+            text2qti_config = Config()
+            quiz = Quiz(
+                content, config=text2qti_config, source_name=os.path.dirname(dir_input)
+            )
+            qti = QTI(quiz)
+
+            qti_dir = os.path.join(dir_output, "qti.zip")
+            qti.save(qti_dir)
+
+            is_successful = True
+            break
+        except Exception as e:
+            error_messages.append(e)
+            pass
+
+    if not is_successful:
+        for fork, error_message in zip(forks, error_messages):
+            print(
+                "[blue]└── [/blue]"
+                f"[red]Fork {fork}: [/red]"
+                f"[white]{error_message}[/white]"
+            )
+        raise Exception(
+            "Cannot parse given content file using any text2qti fork. Please consult the error messages above."
+        )
 
     # Black magic
     with TemporaryDirectory() as tmpdir:

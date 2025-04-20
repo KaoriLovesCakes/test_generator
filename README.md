@@ -1,7 +1,8 @@
 # Exam Generator Tool
 
-> [!WARNING] Still in beta. Breaking changes are expected without notice. Please
-> read the documentation carefully.
+> [!WARNING]
+> Still in beta. Breaking changes are expected without notice.
+> Documentation may be incomplete.
 
 Exam Generator is a Python tool for generating exam.
 

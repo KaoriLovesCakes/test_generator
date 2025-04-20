@@ -1,0 +1,13 @@
+0.  Khả năng nào sau đây **không** là đặc trưng của AI?
+
+  ![image attachment](examples/example_a/example.jpg)
+
+  ![audio attachment](examples/example_a/example.jpg)
+
+a)  Học.
+
+b)  Hiểu ngôn ngữ.
+
+c)  Suy luận.
+
+*d) Luyện thể hình.

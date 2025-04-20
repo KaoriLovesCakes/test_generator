@@ -112,15 +112,10 @@ def main(
 
     print(f"[green]Sẽ tạo đề thi tại [white]{path}[/white].[/green]")
 
-    keys_global = ["shuffle"]
-    keys_per_prompt_generated = ["prompt", "n_problems", "handler"]
+    keys_per_prompt_generated = ["prompt", "handler"]
     keys_per_prompt_manual = ["source"]
 
     config_global = config_all.get("global", {})
-
-    for key in keys_global:
-        if key not in config_global:
-            raise KeyError(f"{key} is not specified.")
 
     config_per_prompt = {}
     for i, config_per_prompt_curr in enumerate(config_all["batch"]):
@@ -132,6 +127,9 @@ def main(
 
         if not mode:
             raise KeyError(f"Batch {i}: Insufficient keys.")
+
+        if mode == "generated" and "n_problems" not in config_per_prompt_curr:
+            config_per_prompt_curr["n_problems"] = 1
 
         config_per_prompt_curr["mode"] = mode
         config_per_prompt[f"batch_{i}"] = config_per_prompt_curr
