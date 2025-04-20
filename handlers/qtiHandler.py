@@ -87,6 +87,11 @@ def qti_handler(dir_input: str, dir_output: str):
                                 false_img.replaceWith(audio_tag)
                         mattext_tag.string = html.escape(str(mattext_soup))
 
+                    for response_label in soup.find_all("response_label"):
+                        for mattext_tag in response_label.find_all("mattext"):
+                            # Remove unsupported html tags in dropdown boxes when using substance9's fork.
+                            mattext_tag.string = mattext_tag.string[33:-36]
+
                     with open(os.path.join(root, file), "w", encoding="utf-8") as f:
                         f.write(soup.prettify(formatter=HTMLFormatter(indent=2)))
 
