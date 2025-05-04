@@ -1,0 +1,82 @@
+Please help me generate an exam consisting of multiple choice questions.
+Make it very challenging since we are selecting students for the International Olympiad in Artificial Intelligence competition!!
+
+The topic is: Machine Learning
+
+Here is the syllabus:
+
+- Supervised Learning
+    - Linear Regression
+    - Logistic Regression
+    - K-Nearest Neighbors
+    - Decision Trees
+    - Random FOrests
+    - Gradient Boosting (e.g. XGBoost)
+    - Support Vector Machines
+
+- Unsupervised Learning
+    - K-Means Clustering, other Clustering methods
+    - Principal Component Analysis, other Dimensionality Reduction Methods
+
+- Evaluation
+    - Model Evaluation Metrics (e.g. Accuracy, Precision, Recall, F1-Score)
+    - Underfitting, Overfitting
+    - Hyperparameter Tuning
+    - Cross-Validation
+    - Confusion Matrix, ROC Curve
+
+Here are some example questions:
+
+```
+1. Which of the following statements about k-NN is true?
+
+A. The test classification accuracy is better with larger values of k
+B. The decision boundary is smoother with larger values of k (CORRECT)
+C. If k is too large, the classifier is sensitive to noisy points.
+D. If k is too large, it is likely that the model will overfit.
+```
+
+```
+2. How will regularising the weights in a linear regression model change the bias and variance (relative to the same model with no regularisation)?
+
+A. Increase bias, increase variance
+B. Increase bias, decrease variance (CORRECT)
+C. Decrease bias, increase variance.
+D. Decrease bias, decrease variance.
+```
+
+```
+3. How does the irreducible error change if we increase the regularisation coefficient lambda in ridge regression?
+
+A. Increase
+B. Decrease
+C. Not change (CORRECT)
+D. The answer depends on the dataset and true weights
+```
+
+```
+4. When is PCA ineffective?
+
+A. When data has an orthogonal underlying structure
+B. When the data's underlying low-dimensional structure is non-linear (CORRECT)
+C. When the data is standardised
+D. When data visualisation is needed
+```
+
+```
+5. Which of the following activation functions can be used in the **output** layer of a neural network if we wish to predict the probability of k classes, such that the sum of probabilities over all k equals to 1? (assume k is at least 2)
+
+A. tanh
+B. leaky ReLU
+C. sigmoid
+D. softmax (CORRECT)
+```
+
+```
+6. What kind of method can be used to tune models and hyperparameter selection so as to optimise the bias-variance tradeoff?
+
+A. bootstrap
+B. k-means
+C. cross validation (CORRECT)
+D. all of the above
+```

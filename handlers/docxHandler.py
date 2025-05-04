@@ -75,7 +75,7 @@ def docx_handler(dir_input: str, dir_output: str):
         section.right_margin = Cm(2.0)
         footer = section.footer
         footer_para = (
-            footer.paragraphs[0] if footer.paragraphs else footer.add_paragraph()
+            footer.paragraphs[0] if footer.paragraphs else footer.paragraphs[0]
         )
         add_page_number(footer_para.add_run())
         footer_para.alignment = WD_ALIGN_PARAGRAPH.RIGHT
@@ -115,10 +115,10 @@ def docx_handler(dir_input: str, dir_output: str):
 
         if ptype == "multiple_choice":
             row = my_table.add_row()
-            row.cells[0].add_paragraph().add_run(
+            row.cells[0].paragraphs[0].add_run(
                 f"Câu 1.{n_problems_of_ptype[ptype]}"
             ).bold = True
-            r = row.cells[1].add_paragraph()
+            r = row.cells[1].paragraphs[0]
             r.add_run(question)
             for media_path in medias:
                 media_format = os.path.splitext(media_path)[1][1:]
@@ -131,16 +131,16 @@ def docx_handler(dir_input: str, dir_output: str):
                 if prefix[0] == "*":
                     answer = i
                 row = my_table.add_row()
-                row.cells[0].add_paragraph().add_run(chr(ord("A") + i)).bold = True
-                row.cells[1].add_paragraph().add_run(choice)
+                row.cells[0].paragraphs[0].add_run(chr(ord("A") + i)).bold = True
+                row.cells[1].paragraphs[0].add_run(choice)
 
             row = my_table.add_row()
-            row.cells[0].add_paragraph().add_run("Lời giải").bold = True
-            row.cells[1].add_paragraph().add_run(solution)
+            row.cells[0].paragraphs[0].add_run("Lời giải").bold = True
+            row.cells[1].paragraphs[0].add_run(solution)
 
             row = my_table.add_row()
-            row.cells[0].add_paragraph().add_run("Đáp án").bold = True
-            row.cells[1].add_paragraph().add_run(chr(ord("A") + answer))
+            row.cells[0].paragraphs[0].add_run("Đáp án").bold = True
+            row.cells[1].paragraphs[0].add_run(chr(ord("A") + answer))
 
         if ptype == "true_false":
             question_without_statements, *statements = [
@@ -155,10 +155,10 @@ def docx_handler(dir_input: str, dir_output: str):
             ]
 
             row = my_table.add_row()
-            row.cells[0].add_paragraph().add_run(
+            row.cells[0].paragraphs[0].add_run(
                 f"Câu 2.{n_problems_of_ptype[ptype]}"
             ).bold = True
-            r = row.cells[1].add_paragraph()
+            r = row.cells[1].paragraphs[0]
             r.add_run(question_without_statements)
             for media_path in medias:
                 media_format = os.path.splitext(media_path)[1][1:]
@@ -169,17 +169,15 @@ def docx_handler(dir_input: str, dir_output: str):
             answer = 0
             for i, statement in enumerate(statements):
                 row = my_table.add_row()
-                row.cells[0].add_paragraph().add_run(
-                    f"{chr(ord('A') + i)})"
-                ).bold = True
-                row.cells[1].add_paragraph().add_run(statement)
+                row.cells[0].paragraphs[0].add_run(f"{chr(ord('A') + i)})").bold = True
+                row.cells[1].paragraphs[0].add_run(statement)
 
             row = my_table.add_row()
-            row.cells[0].add_paragraph().add_run("Lời giải").bold = True
-            row.cells[1].add_paragraph().add_run(solution)
+            row.cells[0].paragraphs[0].add_run("Lời giải").bold = True
+            row.cells[1].paragraphs[0].add_run(solution)
 
             row = my_table.add_row()
-            row.cells[0].add_paragraph().add_run("Đáp án").bold = True
-            row.cells[1].add_paragraph().add_run(answers[0][1])
+            row.cells[0].paragraphs[0].add_run("Đáp án").bold = True
+            row.cells[1].paragraphs[0].add_run(answers[0][1])
 
     doc.save(os.path.join(dir_output, "exam.docx"))
