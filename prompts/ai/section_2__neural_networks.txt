@@ -1,7 +1,18 @@
 Please help me generate an exam consisting of multiple choice questions.
-Make it very challenging since we are selecting students for the International Olympiad in Artificial Intelligence competition!!
 
-The topic is: Multi-Layer Perceptrons (Deep Learning)
+Make it very challenging since we are selecting students for the International Olympiad in Artificial Intelligence competition!!
+Make sure that the correct answer is not immediately obvious, e.g. it should not always be the most lengthy choice.
+Be VERY creative~
+
+The topic is: Neural Networks
+
+Here is the syllabus:
+
+- Perceptron Basics
+- Gradient Descent
+- Backpropagation
+- Activation Functions (ReLU, Sigmoid, Tanh)
+- Cost Functions (MSE, MAE, Cross Entropy, etc.)
 
 Here are some example questions:
 
