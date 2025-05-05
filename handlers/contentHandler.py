@@ -103,7 +103,7 @@ def txt_to_json(content: str):
     return problems
 
 
-def json_to_txt(problems: dict, path):
+def json_to_txt(problems: dict, path, with_hidden_uuid: bool):
     if not problems:
         return ""
 
@@ -120,7 +120,11 @@ def json_to_txt(problems: dict, path):
         return "\n".join(formatted_lines)
 
     def _get_text_with_hidden_uuid(s: str):
-        return f'{s}<font style="display:none">{uuid.uuid1()}</font>'
+        return (
+            f'{s}<font style="display:none">{uuid.uuid1()}</font>'
+            if with_hidden_uuid
+            else s
+        )
 
     content = ""
 
@@ -188,6 +192,7 @@ def json_to_txt(problems: dict, path):
 
 def content_handler(path: str, config_global: dict, config_per_prompt: dict):
     content_dir = os.path.join(path, "content.txt")
+    content_clean_dir = os.path.join(path, "content_clean.txt")
     logs_dir = os.path.join(path, "logs")
     os.makedirs(logs_dir, exist_ok=True)
 
@@ -229,7 +234,7 @@ def content_handler(path: str, config_global: dict, config_per_prompt: dict):
 
             content_curr_dir = os.path.join(logs_dir, f"{key}_content.txt")
             with open(content_curr_dir, "w+", encoding="utf-8") as f:
-                f.write(json_to_txt(problems_curr, None))
+                f.write(json_to_txt(problems_curr, None, with_hidden_uuid=False))
 
             try:
                 json.loads(response)
@@ -259,7 +264,10 @@ def content_handler(path: str, config_global: dict, config_per_prompt: dict):
         problems = dict(problems_items)
 
     with open(content_dir, "w+", encoding="utf-8") as f:
-        f.write(json_to_txt(problems, path))
+        f.write(json_to_txt(problems, path, with_hidden_uuid=True))
+
+    with open(content_clean_dir, "w+", encoding="utf-8") as f:
+        f.write(json_to_txt(problems, path, with_hidden_uuid=False))
 
     print(
         (
