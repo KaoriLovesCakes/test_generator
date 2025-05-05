@@ -1,0 +1,15 @@
+Please help me generate an exam consisting of multiple choice questions.
+Make it very challenging since we are selecting students for the International Olympiad in Artificial Intelligence competition!!
+
+The topic is: Multi-Layer Perceptrons (Deep Learning)
+
+Here are some example questions:
+
+```
+1. Which of the following activation functions can be used in the **output** layer of a neural network if we wish to predict the probability of k classes, such that the sum of probabilities over all k equals to 1? (assume k is at least 2)
+
+A. tanh
+B. leaky ReLU
+C. sigmoid
+D. softmax (CORRECT)
+```
