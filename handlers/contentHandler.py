@@ -30,6 +30,8 @@ MEDIA_COMPONENTS_PATTERN = r"!\[([^\]]*)\]\(([^)]+)\)"
 IMAGE_FORMATS = ["gif", "jpeg", "jpg", "svg", "png"]
 AUDIO_FORMATS = ["mp3", "mpeg"]
 
+INDENT_SIZE = 6
+
 
 def load_handler(handler_name: str):
     handler_path = os.path.join("handlers/custom", f"{handler_name}.py")
@@ -50,13 +52,20 @@ def load_handler(handler_name: str):
 
 
 def txt_to_json(content: str):
+    def _process(s: str):
+        s_split = s.splitlines()
+        return "\n".join(
+            [s_split[0]]
+            + [line[INDENT_SIZE:] if line else line for line in s_split[1:]]
+        )
+
     problems = {}
 
     for i, problem_raw in enumerate(
         re.split(QUESTION_PATTERN, content, flags=re.MULTILINE)[1:]
     ):
         chunks = [
-            chunk.strip()
+            chunk
             for chunk in re.split(
                 ANSWER_OR_SOLUTION_PATTERN, problem_raw, flags=re.MULTILINE
             )
@@ -67,10 +76,11 @@ def txt_to_json(content: str):
         solution = ""
         for j in range(1, len(chunks), 2):
             prefix, content = chunks[j], chunks[j + 1]
+            content = _process(content)
             if re.match(SOLUTION_PATTERN, prefix):
                 solution = content
             else:
-                answers.append((prefix, content))
+                answers.append((prefix, content.strip()))
         medias = []
         for media_raw in [
             line.strip()
@@ -80,6 +90,7 @@ def txt_to_json(content: str):
             _, media_path = re.search(MEDIA_COMPONENTS_PATTERN, media_raw).groups()
             medias.append(media_path)
         question = re.sub(MEDIA_PATTERN[1:], "", chunks[0]).strip()
+        question = _process(question)
 
         problems[f"q{i + 1}"] = {
             "question": question,
@@ -95,12 +106,12 @@ def json_to_txt(problems: dict, path):
     if not problems:
         return ""
 
-    indent_size = max(len(str(len(problems))) + 2, 6)
+    indent_size = INDENT_SIZE
 
     def _get_formatted_multiline_str(p: str, s: str):
         if not s:
             return ""
-        stripped_lines = [line.strip() for line in s.splitlines()]
+        stripped_lines = [line for line in s.splitlines()]
         formatted_lines = [
             f"{' ' * indent_size}{line}" if line else "" for line in stripped_lines
         ]
@@ -156,7 +167,7 @@ def json_to_txt(problems: dict, path):
             else:
                 raise Exception(f"Invalid or unsupported media at: {media_loc}")
 
-        content += _get_formatted_multiline_str(f"{n_problems}.", question) + "\n\n"
+        content += _get_formatted_multiline_str("1.", question) + "\n\n"
         if solution:
             content += _get_formatted_multiline_str("!", solution) + "\n\n"
         for prefix, answer in answers:

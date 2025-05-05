@@ -147,7 +147,7 @@ def docx_handler(dir_input: str, dir_output: str):
                 chunk.strip()
                 for chunk in re.split(
                     r"^\*?[a-zA-z]\)",
-                    # "\n".join([line.strip() for line in question.splitlines()]),
+                    "\n".join([line.strip() for line in question.splitlines()]),
                     question,
                     flags=re.MULTILINE,
                 )
