@@ -1,8 +1,13 @@
 Please help me generate an exam consisting of multiple choice questions.
 
 Make it very challenging since we are selecting students for the International Olympiad in Artificial Intelligence competition!!
+Students should be expected to understand the topics deeply, knowing both how a concept work and when to apply it, possibly being able to link different concepts.
 Make sure that the correct answer is not immediately obvious, e.g. it should not always be the most lengthy choice.
-Be VERY creative~
+Incorrect answers should be good distractors~
+
+Be VERY creative, I want to avoid duplicates since I will be using this prompt multiple times!!
+
+Nhớ là sử dụng tiếng Việt nha!!
 
 The topic is: Deep Learning
 
@@ -20,18 +25,12 @@ Here is the syllabus:
 - Batch Normalization
 - Autoencoders and Sparse Encoders
 
+Please do not ask questions about Computer Vision/Natural Language Processing since they are separate topics!!
+
 Here are some example questions:
 
 ```
-1. Which of the followings are true about Batch Normalization?
-
-A) Batch Norm layers are skipped at test time because a single test example cannot be normalized.
-B) Its learnable parameters can only be learned using gradient descent or mini-batch gradient descent, but not other optimization algorithms.
-C) It introduces noise to a hidden layer’s activation, because the mean and the standard deviation are estimated with a mini-batch of data. (CORRECT)
-D) All of the Above
-
-
-2. What is the benefit of using Momentum optimization?
+1. What is the benefit of using Momentum optimization?
 
 A) Simple update rule with minimal hyperparameters
 B) Helps get weights out of local minima (CORRECT)
@@ -39,7 +38,7 @@ C) Effectively scales the learning rate to act the same amount across all dimens
 D) Combines the benefits of multiple optimization methods
 
 
-3. Which of the below can you implement to solve the exploding gradient problem?
+2. Which of the below can you implement to solve the exploding gradient problem?
 
 A) Use SGD optimization
 B) Oversample minority classes

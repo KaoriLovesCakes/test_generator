@@ -1,8 +1,13 @@
 Please help me generate an exam consisting of multiple choice questions.
 
 Make it very challenging since we are selecting students for the International Olympiad in Artificial Intelligence competition!!
+Students should be expected to understand the topics deeply, knowing both how a concept work and when to apply it, possibly being able to link different concepts.
 Make sure that the correct answer is not immediately obvious, e.g. it should not always be the most lengthy choice.
-Be VERY creative~
+Incorrect answers should be good distractors~
+
+Be VERY creative, I want to avoid duplicates since I will be using this prompt multiple times!!
+
+Nhớ là sử dụng tiếng Việt nha!!
 
 The topic is: Neural Networks
 

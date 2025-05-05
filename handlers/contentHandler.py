@@ -4,6 +4,7 @@ import os
 import random
 import re
 import shutil
+import uuid
 
 import dotenv
 import soundfile as sf
@@ -118,6 +119,9 @@ def json_to_txt(problems: dict, path):
         formatted_lines[0] = p.ljust(indent_size) + stripped_lines[0]
         return "\n".join(formatted_lines)
 
+    def _get_text_with_hidden_uuid(s: str):
+        return f'{s}<font style="display:none">{uuid.uuid1()}</font>'
+
     content = ""
 
     if path:
@@ -167,11 +171,17 @@ def json_to_txt(problems: dict, path):
             else:
                 raise Exception(f"Invalid or unsupported media at: {media_loc}")
 
-        content += _get_formatted_multiline_str("1.", question) + "\n\n"
+        content += (
+            _get_formatted_multiline_str("1.", _get_text_with_hidden_uuid(question))
+            + "\n\n"
+        )
         if solution:
             content += _get_formatted_multiline_str("!", solution) + "\n\n"
         for prefix, answer in answers:
-            content += _get_formatted_multiline_str(prefix, answer) + "\n\n"
+            content += (
+                _get_formatted_multiline_str(prefix, _get_text_with_hidden_uuid(answer))
+                + "\n\n"
+            )
 
     return content
 
