@@ -121,7 +121,7 @@ def json_to_txt(problems: dict, path, with_hidden_uuid: bool):
 
     def _get_text_with_hidden_uuid(s: str):
         return (
-            f'{s}<font style="display:none">{uuid.uuid1()}</font>'
+            f'{s}<font style="display:none">{uuid.uuid4()}</font>'
             if with_hidden_uuid
             else s
         )
