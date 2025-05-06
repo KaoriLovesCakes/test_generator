@@ -21,7 +21,8 @@ ANSWER_PATTERNS = {
     "multans": r"^\[\*?\s?\]",
     "shortans": r"^\*",
 }
-SOLUTION_PATTERN = r"^\!"
+# SOLUTION_PATTERN = r"^\!"
+SOLUTION_PATTERN = r"^\.\.\."
 ANSWER_OR_SOLUTION_PATTERN = "|".join(
     f"({p})" for p in list(ANSWER_PATTERNS.values()) + [SOLUTION_PATTERN]
 )
@@ -180,7 +181,7 @@ def json_to_txt(problems: dict, path, with_hidden_uuid: bool):
             + "\n\n"
         )
         if solution:
-            content += _get_formatted_multiline_str("!", solution) + "\n\n"
+            content += _get_formatted_multiline_str("...", solution) + "\n\n"
         for prefix, answer in answers:
             content += (
                 _get_formatted_multiline_str(prefix, _get_text_with_hidden_uuid(answer))
