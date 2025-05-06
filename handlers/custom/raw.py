@@ -11,7 +11,7 @@ MODEL = os.environ.get("MODEL") or "gemini-2.0-flash"
 client = genai.Client(api_key=API_KEY)
 
 
-def handler(prompt_content: str, n_problems: int):
+def handler(prompt_content: str, n_problems: int, extra_cfg: dict):
     """
     Takes in content of a prompt and the number of problems to be generated.
     Return LLM's response.
@@ -21,7 +21,7 @@ def handler(prompt_content: str, n_problems: int):
         model=MODEL,
         contents=prompt_content,
         config={
-            "temperature": 1.5,
+            "temperature": extra_cfg.get("temperature", 1.2),
         },
     ).text
     assert response is not None

@@ -226,12 +226,15 @@ def content_handler(path: str, config_global: dict, config_per_prompt: dict):
             problems_curr = {}
 
             front_handler = load_handler(config_per_prompt_curr["handler"])
-            n_problems = config_per_prompt_curr["n_problems"]
+            n_problems = config_per_prompt_curr.get("n_problems", 1)
+            extra_cfg = config_per_prompt_curr.get("extra_cfg", dict())
 
             with open(prompt_dir, "r", encoding="utf-8") as f:
                 prompt_content = f.read()
 
-            problems_curr, response = front_handler(prompt_content, n_problems)
+            problems_curr, response = front_handler(
+                prompt_content, n_problems, extra_cfg
+            )
 
             content_curr_dir = os.path.join(logs_dir, f"{key}_content.txt")
             with open(content_curr_dir, "w+", encoding="utf-8") as f:

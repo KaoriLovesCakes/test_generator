@@ -33,7 +33,7 @@ class QuestionBlock(BaseModel):
     )
 
 
-def handler(prompt_content: str, n_problems: int):
+def handler(prompt_content: str, n_problems: int, extra_cfg: dict):
     """
     Takes in content of a prompt and the number of problems to be generated.
     Return LLM's response.
@@ -48,7 +48,7 @@ def handler(prompt_content: str, n_problems: int):
                 "MyQuestions",
                 **{f"q{i}": (QuestionBlock, ...) for i in range(n_problems)},
             ),
-            "temperature": 1.2,
+            "temperature": extra_cfg.get("temperature", 1.2),
         },
     ).text
     assert response is not None

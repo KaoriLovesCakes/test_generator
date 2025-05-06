@@ -128,9 +128,6 @@ def main(
         if not mode:
             raise KeyError(f"Batch {i}: Insufficient keys.")
 
-        if mode == "generated" and "n_problems" not in config_per_prompt_curr:
-            config_per_prompt_curr["n_problems"] = 1
-
         config_per_prompt_curr["mode"] = mode
         config_per_prompt[f"batch_{i}"] = config_per_prompt_curr
 
