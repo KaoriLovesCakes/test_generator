@@ -183,10 +183,7 @@ def json_to_txt(problems: dict, path, with_hidden_uuid: bool):
         if solution:
             content += _get_formatted_multiline_str("...", solution) + "\n\n"
         for prefix, answer in answers:
-            content += (
-                _get_formatted_multiline_str(prefix, _get_text_with_hidden_uuid(answer))
-                + "\n\n"
-            )
+            content += _get_formatted_multiline_str(prefix, answer) + "\n\n"
 
     return content
 
